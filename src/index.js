@@ -10,8 +10,6 @@ wp.blocks.registerBlockType( 'reduct-plugin/configs', {
 		url: { type: 'string' },
 	},
 
-
-
 	// what is seen in admin post editor screen
 	edit: function ( props) {
 		const [ url, setUrl ] = useState( props.attributes.url || '' );
