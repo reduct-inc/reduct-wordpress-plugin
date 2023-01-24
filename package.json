@@ -14,7 +14,7 @@
 		"lint:md:docs": "wp-scripts lint-md-docs",
 		"lint:pkg-json": "wp-scripts lint-pkg-json",
 		"packages-update": "wp-scripts packages-update",
-		"plugin-zip": "wp-scripts plugin-zip"
+		"bundle": "wp-scripts plugin-zip"
 	},
 	"keywords": [],
 	"author": "Reduct Video",
