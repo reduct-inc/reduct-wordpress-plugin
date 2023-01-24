@@ -24,7 +24,7 @@ class Plugin
         wp_register_script(
             'blockType' /* name given to JS file */,
             plugin_dir_url(__FILE__) . 'build/index.js',
-            array('wp-blocks', 'wp-element') 
+            array('wp-blocks', 'wp-element', 'wp-components') 
         );
 
         // first param -> same as name described in js
