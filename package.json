@@ -1,8 +1,8 @@
 {
-	"name": "js-plugin",
+	"name": "reduct-video-plugin",
 	"version": "1.0.0",
 	"description": "",
-	"main": "test.js",
+	"main": "src/index.js",
 	"scripts": {
 		"start": "wp-scripts start",
 		"build": "wp-scripts build",
@@ -17,7 +17,7 @@
 		"plugin-zip": "wp-scripts plugin-zip"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "Reduct Video",
 	"license": "ISC",
 	"devDependencies": {
 		"@wordpress/scripts": "^25.1.0"
