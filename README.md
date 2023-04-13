@@ -2,7 +2,7 @@
 Embed Reduct Share URLs in Wordpress sites
 
 Get our latest release of our plugin here.
-[Embed Reduct Reels - Wordpress Plugin v1.0](https://github.com/reduct-inc/reduct-wordpress-plugin/releases/download/wordpress/reduct-video-plugin.zip).
+[Embed Reduct Reels - Wordpress Plugin v1.0](https://github.com/reduct-inc/reduct-wordpress-plugin/releases/download/pre-release/reduct-video-plugin.zip).
 
 ## Requirements:
 - php 7+
