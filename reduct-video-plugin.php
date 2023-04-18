@@ -24,7 +24,7 @@ class Plugin
         wp_register_script(
             'blockType' /* name given to JS file */,
             plugin_dir_url(__FILE__) . 'build/index.js',
-            array('wp-blocks', 'wp-element', 'wp-components') 
+            array('wp-blocks', 'wp-element', 'wp-components')
         );
 
         // first param -> same as name described in js
@@ -44,9 +44,9 @@ class Plugin
     {
         $response = new WP_REST_Response;
 
-        $url_contents = $request-> get_params();
+        $url_contents = $request->get_params();
 
-        $id = str_replace("/burn","",$url_contents["id"])  ;
+        $id = str_replace("/burn", "", $url_contents["id"]);
         $manifest = $url_contents["manifest"];
         $idx = $url_contents["idx"];
 
