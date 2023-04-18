@@ -1,82 +1,79 @@
 // dependency added from the php wp
 import { useState, useRef } from '@wordpress/element';
-import {Modal} from '@wordpress/components';
+import { Modal } from '@wordpress/components';
+import IconImg from './icon.svg';
 
-wp.blocks.registerBlockType( 'reduct-plugin/configs', {
-	title: 'Reduct Video Plugin',
-	icon: 'smiley',
-	category: 'common',
-	attributes: {
-		url: { type: 'string' },
-	},
+const Icon = <img src={IconImg} />;
 
-	// what is seen in admin post editor screen
-	edit: function ( props) {
-		const [ url, setUrl ] = useState( props.attributes.url || '' );
-		const [ isOpen, setOpen ] = useState( false );
+wp.blocks.registerBlockType('reduct-plugin/configs', {
+  title: 'Reduct Video Plugin',
+  icon: Icon,
+  category: 'common',
+  attributes: {
+    url: { type: 'string' },
+  },
 
-		const isSuccess = useRef( true );
+  // what is seen in admin post editor screen
+  edit: function (props) {
+    const [url, setUrl] = useState(props.attributes.url || '');
+    const [isOpen, setOpen] = useState(false);
 
-		const openModal = () => setOpen( true );
-		const closeModal = () => setOpen( false );
+    const isSuccess = useRef(true);
 
-		function updateUrl() {
-			if ( ! url.startsWith( 'https://app.reduct.video/e/' ) ) {
-				isSuccess.current = false;
-				openModal();
-				return;
-			}
+    const openModal = () => setOpen(true);
+    const closeModal = () => setOpen(false);
 
-			isSuccess.current = true;
-			openModal();
-			props.setAttributes( { url } );
-		}
+    function updateUrl() {
+      if (!url.startsWith('https://app.reduct.video/e/')) {
+        isSuccess.current = false;
+        openModal();
+        return;
+      }
 
-		return (
-			<div style={ { padding: '20px', paddingBottom: '10px' } }>
-				<h5>Embed Reduct Video</h5>
-				<p>Paste the shared URL</p>
-				<div style={ { display: 'flex', width: '100%' } }>
-					<input
-						type="text"
-						placeholder="Enter URL to embed..."
-						onChange={ ( e ) => setUrl( e.target.value ) }
-						value={ url }
-						style={ { flex: 1, padding: '5px 10px' } }
-					/>
-					<button
-						style={ {
-							backgroundColor: 'rgb(236, 83, 65)',
-							padding: '5px 10px',
-							color: 'white',
-							fontSize: '14px',
-							borderRadius: '3px',
-							outline: 'none',
-							border: 'none',
-							marginLeft: '5px',
-						} }
-						onClick={ updateUrl }
-					>
-						Embed
-					</button>
-				</div>
-				{ isOpen && (
-					<Modal
-						title={ isSuccess.current ? 'Success' : 'Invalid URL' }
-						onRequestClose={ closeModal }
-					>
-						<p>
-							{ isSuccess.current
-								? 'Saved'
-								: 'Please use a valid url.' }
-						</p>
-					</Modal>
-				) }
-			</div>
-		);
-	},
-	// what public will see with content
-	save: function () {
-		return null;
-	},
-} );
+      isSuccess.current = true;
+      openModal();
+      props.setAttributes({ url });
+    }
+
+    return (
+      <div style={{ padding: '20px', paddingBottom: '10px' }}>
+        <h5>Embed Reduct Video</h5>
+        <p>Paste the shared URL</p>
+        <div style={{ display: 'flex', width: '100%' }}>
+          <input
+            type='text'
+            placeholder='Enter URL to embed...'
+            onChange={(e) => setUrl(e.target.value)}
+            value={url}
+            style={{ flex: 1, padding: '5px 10px' }}
+          />
+          <button
+            style={{
+              backgroundColor: 'rgb(236, 83, 65)',
+              padding: '5px 10px',
+              color: 'white',
+              fontSize: '14px',
+              borderRadius: '3px',
+              outline: 'none',
+              border: 'none',
+              marginLeft: '5px',
+            }}
+            onClick={updateUrl}>
+            Embed
+          </button>
+        </div>
+        {isOpen && (
+          <Modal
+            title={isSuccess.current ? 'Success' : 'Invalid URL'}
+            onRequestClose={closeModal}>
+            <p>{isSuccess.current ? 'Saved' : 'Please use a valid url.'}</p>
+          </Modal>
+        )}
+      </div>
+    );
+  },
+  // what public will see with content
+  save: function () {
+    return null;
+  },
+});
