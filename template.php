@@ -80,8 +80,7 @@ $id = uniqid("unahc");
             const manifest = JSON.parse(manifestFromMeta);
 
             const urlFromMeta = document.querySelector('meta[name="url_<?= htmlspecialchars($id) ?>"]').content;
-            const url = `${window.origin}/wp-json/reduct-plugin/v1/video/${urlFromMeta.split("/e/")[1]}`
-
+            const url = `${window.origin}/?rest_route=/reduct-plugin/v1/video/${urlFromMeta.split("/e/")[1]}`;
             Reduct.getSharePlayerFromManifest(video, manifest, url)
         }
 

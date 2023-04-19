@@ -46,8 +46,17 @@ class Plugin
 
         $url_contents = $request->get_params();
 
-        $id = str_replace("/burn", "", $url_contents["id"]);
-        $manifest = $url_contents["manifest"];
+        // instead of separate the url query params, they are packed into rest_route except idx
+        $rest_route = $url_contents["rest_route"];
+
+        // extract manifest from url
+        $query = parse_url($rest_route, PHP_URL_QUERY);
+        parse_str($query, $params);
+        $manifest = $params['manifest'];
+
+        // extract transcript id from url
+        $id = explode("/", $rest_route)[4];
+
         $idx = $url_contents["idx"];
 
         if ($id === "" || $manifest === "" || $idx === "") {
