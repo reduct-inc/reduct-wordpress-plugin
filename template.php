@@ -28,8 +28,10 @@ $id = uniqid("unahc");
 <meta name="manifest_<?= htmlspecialchars($id) ?>" content="<?= htmlspecialchars($manifest) ?>">
 <meta name="url_<?= htmlspecialchars($id) ?>" content="<?= htmlspecialchars($base_url) ?>">
 
-<div id="container_<?= htmlspecialchars($id) ?>" style="min-width:320px;display:flex;flex-direction:column">
-    <video id="reduct-video_<?= htmlspecialchars($id) ?>" controls style="border-radius: 1rem 1rem 0 0 " poster="<?= htmlspecialchars($base_url) ?>posterframe.jpg"></video>
+<div id="container_<?= htmlspecialchars($id) ?>"
+    style="all: unset; min-width:320px;display:flex;flex-direction:column;">
+    <video id="reduct-video_<?= htmlspecialchars($id) ?>" controls style="border-radius: 1rem 1rem 0 0 "
+        poster="<?= htmlspecialchars($base_url) ?>posterframe.jpg"></video>
 
     <?php
 
@@ -37,14 +39,16 @@ $id = uniqid("unahc");
         ?>
         <div id="transcript_<?= htmlspecialchars($id) ?>"
             style="height: 150px; font-size: 16px;margin-bottom: 0.75rem;overflow-y: scroll;border-radius: 0 0 1rem 1rem;
-                                                box-shadow: 0 0.438rem 0.938rem rgb(0 0 0 / 10%); padding: 20px;font-family: sans-serif;scroll-behavior: smooth;">
+                                                box-shadow: 0 0.438rem 0.938rem rgb(0 0 0 / 10%); padding: 20px; font-family: Sans-serif; scroll-behavior: smooth;">
             <?php
             foreach ($segments as $segment) {
                 $segment_start = $segment["start"];
                 $segment_end = $segment["end"];
-                $segment_speaker = $segment["speaker_name"] === "" ? "Unnamed Speaker" :  $segment["speaker_name"];
+                $segment_speaker = $segment["speaker_name"] === "" ? "Unnamed Speaker" : $segment["speaker_name"];
                 ?>
-                <div style="font-size: 12px; color: #B3B3B3; margin-bottom: -16px"</div><?php echo $segment_speaker ?></div>
+                <div style="font-size: 12px; color: #B3B3B3; margin-bottom: -16px;" </div>
+                    <?php echo $segment_speaker ?>
+                </div>
                 <p class="transcript-paragraph_<?= htmlspecialchars($id) ?>" data-start="<?php echo $segment_start ?>"
                     data-end="<?php echo $segment_end ?>" style="border-radius: 5px">
                     <?php
@@ -57,15 +61,15 @@ $id = uniqid("unahc");
                             style="cursor:pointer;padding: 2px" class="transcript-word_<?= htmlspecialchars($id) ?>">
                             <?php echo $word ?>
                         </span>
-                    <?php
+                        <?php
                     }
                     ?>
                 </p>
-            <?php
+                <?php
             }
             ?>
         </div>
-    <?php
+        <?php
     }
     ?>
 </div>
@@ -113,7 +117,7 @@ $id = uniqid("unahc");
 
         video.ontimeupdate = () => {
             const currentTime = video.currentTime;
-            
+
             for (let word of words) {
                 const startTime = word.getAttribute("data-start");
                 const endTime = word.getAttribute("data-end");
