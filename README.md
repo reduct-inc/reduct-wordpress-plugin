@@ -1,5 +1,5 @@
 ## How to Embed Reduct Reels on WordPress 
-- Download our latest release of our plugin here. [Embed Reduct Reels - Wordpress Plugin v1.0.](https://github.com/reduct-inc/reduct-wordpress-plugin/releases/download/pre-release/reduct-video-plugin.zip)
+- Download our latest release of our plugin here. [Embed Reduct Reels - Wordpress Plugin v1.0.0](https://github.com/reduct-inc/reduct-wordpress-plugin/releases/download/v1.0.0/reduct-video-plugin-v1.0.0.zip)
 - Log in to your WordPress site and access the dashboard. This is where you'll manage your site and all of its features.
 - Navigate to the plugins section. Once you're in the dashboard, navigate to the plugins section on the left-hand menu. Here, you'll see a list of all the plugins you have installed on your site.
 - Click on add new at the top of the page. And then click on the upload plugin and choose the download zipped file.
