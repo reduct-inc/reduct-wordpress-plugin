@@ -39,6 +39,27 @@ class Plugin
         return ob_get_clean();
     }
 
+    function transcript_route($request) {
+        $response = new WP_REST_Response;
+
+        $url_contents = $request->get_params();
+        $rest_route = $url_contents["rest_route"];
+        $id = explode("/", $rest_route)[4];
+
+        $path = VIDEO_RESOURCE_URL . $id . "/transcript.json";
+
+        $transcript_data = file_get_contents($path);
+
+        if ($transcript_data == false) {
+            $response->set_data('not-found');
+            $response->set_status(404);
+            return $response;
+        }
+        
+        $response->set_data($transcript_data);
+        return $response;
+    }
+
 
     function video_route($request)
     {
@@ -109,8 +130,10 @@ class Plugin
 
     function rest_api_routes()
     {
+        $prefix_url = 'reduct-plugin/v1';
+
         register_rest_route(
-            'reduct-plugin/v1',
+            $prefix_url,
             '/video/(?P<id>.+)',
             array(
                 // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
@@ -119,9 +142,19 @@ class Plugin
                 'callback' => array($this, 'video_route')
             )
         );
+
+        register_rest_route(
+            $prefix_url,
+            '/transcript/(?P<id>.+)',
+            array(
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => array($this, 'transcript_route')
+            )
+            );
     }
 
 
 }
 
 $plugin = new Plugin();
+?>
