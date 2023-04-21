@@ -2,7 +2,7 @@
 /*
 Plugin name: Reduct Video Plugin
 Description: Plugin to add reduct video shared video to any WP site
-Version: 1.0
+Version: 1.1.0
 Author: Reduct Video
 */
 
@@ -55,7 +55,7 @@ class Plugin
             $response->set_status(404);
             return $response;
         }
-        
+
         $response->set_data($transcript_data);
         return $response;
     }
