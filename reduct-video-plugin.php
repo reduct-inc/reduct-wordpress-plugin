@@ -136,10 +136,9 @@ class Plugin
             $prefix_url,
             '/video/(?P<id>.+)',
             array(
-                // By using this constant we ensure that when the WP_REST_Server changes our readable endpoints will work as intended.
                 'methods' => WP_REST_Server::READABLE,
-                // Here we register our callback. The callback is fired when this endpoint is matched by the WP_REST_Server class.
-                'callback' => array($this, 'video_route')
+                'callback' => array($this, 'video_route'),
+                'permission_callback' => '__return_true'
             )
         );
 
@@ -148,9 +147,10 @@ class Plugin
             '/transcript/(?P<id>.+)',
             array(
                 'methods' => WP_REST_Server::READABLE,
-                'callback' => array($this, 'transcript_route')
-            )
-            );
+                'callback' => array($this, 'transcript_route'),
+                'permission_callback' => '__return_true'
+            ),
+        );
     }
 
 
