@@ -11,6 +11,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
   category: 'common',
   attributes: {
     url: { type: 'string' },
+    transcript: {type: 'string'}
   },
 
   // what is seen in admin post editor screen
@@ -23,16 +24,25 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
     const openModal = () => setOpen(true);
     const closeModal = () => setOpen(false);
 
-    function updateUrl() {
+    async function updateUrl() {
       if (!url.startsWith('https://app.reduct.video/e/')) {
         isSuccess.current = false;
         openModal();
         return;
       }
 
+      const transcriptRes = await fetch(
+        `${window.origin}/?rest_route=/reduct-plugin/v1/transcript/${
+          url.split('/e/')[1]
+        }`
+      );
+
+      const transcript = await transcriptRes.json();
+      
       isSuccess.current = true;
       openModal();
       props.setAttributes({ url });
+      props.setAttributes({ transcript });
     }
 
     return (
