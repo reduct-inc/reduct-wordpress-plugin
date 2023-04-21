@@ -11,26 +11,20 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
   category: 'common',
   attributes: {
     url: { type: 'string' },
-    transcript: {type: 'string'}
+    transcript: { type: 'string' },
   },
 
   // what is seen in admin post editor screen
   edit: function (props) {
     const [url, setUrl] = useState(props.attributes.url || '');
+    const [errorMsg, setErrorMsg] = useState('');
     const [isOpen, setOpen] = useState(false);
-
-    const isSuccess = useRef(true);
+    const [saving, setSaving] = useState(false);
 
     const openModal = () => setOpen(true);
     const closeModal = () => setOpen(false);
 
-    async function updateUrl() {
-      if (!url.startsWith('https://app.reduct.video/e/')) {
-        isSuccess.current = false;
-        openModal();
-        return;
-      }
-
+    async function cacheTranscript() {
       const transcriptRes = await fetch(
         `${window.origin}/?rest_route=/reduct-plugin/v1/transcript/${
           url.split('/e/')[1]
@@ -38,11 +32,31 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
       );
 
       const transcript = await transcriptRes.json();
-      
-      isSuccess.current = true;
-      openModal();
-      props.setAttributes({ url });
       props.setAttributes({ transcript });
+    }
+
+    async function updateUrl() {
+      try {
+        setErrorMsg('');
+        setSaving(true);
+        if (!url.startsWith('https://app.reduct.video/e/')) {
+          setErrorMsg('Invalid URL. Please Enter a valid share link.');
+          return;
+        }
+
+        await cacheTranscript();
+
+        openModal();
+        props.setAttributes({ url });
+      } catch (e) {
+        setErrorMsg(e.message || 'Error saving.');
+      } finally {
+        setSaving(false);
+      }
+    }
+
+    function clearError() {
+      errorMessage.current = '';
     }
 
     return (
@@ -67,16 +81,23 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
               outline: 'none',
               border: 'none',
               marginLeft: '5px',
+              opacity: saving ? 0.4 : 1,
             }}
+            disabled={saving}
             onClick={updateUrl}>
-            Embed
+            {saving ? 'Saving' : 'Embed'}
           </button>
         </div>
+        {errorMsg ? (
+          <div style={{ fontSize: '16px', color: 'rgb(236, 83, 65)' }}>
+            {errorMsg}
+          </div>
+        ) : (
+          ''
+        )}
         {isOpen && (
-          <Modal
-            title={isSuccess.current ? 'Success' : 'Invalid URL'}
-            onRequestClose={closeModal}>
-            <p>{isSuccess.current ? 'Saved' : 'Please use a valid url.'}</p>
+          <Modal title={'Success'} onRequestClose={closeModal}>
+            <p>{'Saved'}</p>
           </Modal>
         )}
       </div>
