@@ -2,13 +2,13 @@
 
 // adding "/" if url is missing it
 $base_url = $attributes["url"];
+$transcript = $attributes["transcript"];
 
 if (!str_ends_with($attributes["url"], "/")) {
     $base_url = $attributes["url"] . "/";
 }
 
 $manifest = file_get_contents($base_url . "burn?type=json");
-$transcript = file_get_contents($base_url . "transcript.json");
 
 $segments = array();
 
