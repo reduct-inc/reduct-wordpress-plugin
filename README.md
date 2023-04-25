@@ -15,7 +15,7 @@
 Requirements:
 
 - php 7+
-- node 16
+- node 18.x
 
 Steps
 
