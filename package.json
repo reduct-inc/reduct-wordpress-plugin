@@ -27,7 +27,7 @@
 		".npmignore"
 	],
 	"devDependencies": {
-		"@wordpress/scripts": "^25.1.0",
+		"@wordpress/scripts": "^26.2.0",
 		"terser-webpack-plugin": "^5.3.7"
 	}
 }
