@@ -1,5 +1,5 @@
 // dependency added from the php wp
-import { useState, useRef } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { Modal } from '@wordpress/components';
 import IconImg from './icon.svg';
 
@@ -53,10 +53,6 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
       } finally {
         setSaving(false);
       }
-    }
-
-    function clearError() {
-      errorMessage.current = '';
     }
 
     return (
