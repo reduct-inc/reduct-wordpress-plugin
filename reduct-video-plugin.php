@@ -24,8 +24,12 @@ class Plugin
         wp_register_script(
             'blockType' /* name given to JS file */,
             plugin_dir_url(__FILE__) . 'build/index.js',
-            array('wp-blocks', 'wp-element', 'wp-components')
+            array('wp-blocks', 'wp-element', 'wp-components'),
+            1.0,
+            true
         );
+
+        wp_localize_script('blockType', 'WP_PROPS', array('site_url' => get_site_url()));
 
         // first param -> same as name described in js
         register_block_type("reduct-plugin/configs", array('editor_script' => 'blockType', 'render_callback' => array($this, 'frontendHTML')));
