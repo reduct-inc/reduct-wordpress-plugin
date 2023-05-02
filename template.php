@@ -56,7 +56,7 @@ $id = uniqid("unahc");
         {
         font-size: 12px;
         color: #B3B3B3;
-        margin-bottom: -16px
+        margin-bottom: 3px
     }
 
     .transcript-word_<?= htmlspecialchars($id) ?>
@@ -67,7 +67,7 @@ $id = uniqid("unahc");
 
     .transcript-paragraph_<?= htmlspecialchars($id) ?>
         {
-        border-radius: 5px;
+        margin-bottom: 10px;
     }
 </style>
 
