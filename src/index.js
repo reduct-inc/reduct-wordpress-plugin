@@ -25,8 +25,11 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
     const closeModal = () => setOpen(false);
 
     async function cacheTranscript() {
+      // accessing site url property of wp
+      const siteUrl = WP_PROPS.site_url;
+
       const transcriptRes = await fetch(
-        `${window.origin}/?rest_route=/reduct-plugin/v1/transcript/${
+        `${siteUrl}/?rest_route=/reduct-plugin/v1/transcript/${
           url.split('/e/')[1]
         }`
       );

@@ -3,6 +3,7 @@
 // adding "/" if url is missing it
 $base_url = $attributes["url"];
 $transcript = $attributes["transcript"];
+$site_url = get_site_url();
 
 if (!str_ends_with($attributes["url"], "/")) {
     $base_url = $attributes["url"] . "/";
@@ -80,7 +81,8 @@ $id = uniqid("unahc");
             const manifest = JSON.parse(manifestFromMeta);
 
             const urlFromMeta = document.querySelector('meta[name="url_<?= htmlspecialchars($id) ?>"]').content;
-            const url = `${window.origin}/?rest_route=/reduct-plugin/v1/video/${urlFromMeta.split("/e/")[1]}`;
+            const siteUrl = "<?= htmlspecialchars($site_url) ?>";
+            const url = `${siteUrl}/?rest_route=/reduct-plugin/v1/video/${urlFromMeta.split("/e/")[1]}`;
             Reduct.getSharePlayerFromManifest(video, manifest, url)
         }
 
