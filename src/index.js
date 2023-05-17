@@ -35,7 +35,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
       );
 
       const transcript = await transcriptRes.json();
-      props.setAttributes({ transcript });
+      return transcript;
     }
 
     async function updateUrl() {
@@ -47,10 +47,11 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
           return;
         }
 
-        await cacheTranscript();
+        const transcript = await cacheTranscript();
 
-        openModal();
+        props.setAttributes({ transcript });
         props.setAttributes({ url });
+        openModal();
       } catch (e) {
         setErrorMsg(e.message || 'Error saving.');
       } finally {
@@ -99,7 +100,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
             <p>{'Saved'}</p>
           </Modal>
         )}
-      </div>
+       </div>
     );
   },
   // what public will see with content
