@@ -2,7 +2,7 @@
 
 // adding "/" if url is missing it
 $base_url = $attributes["url"];
-$transcript = $attributes["transcript"];
+$domElement = $attributes["domElement"];
 $site_url = get_site_url();
 
 if (!str_ends_with($attributes["url"], "/")) {
@@ -13,107 +13,16 @@ $manifest = file_get_contents($base_url . "burn?type=json");
 
 $segments = array();
 
-// if somehow transcript fails to load / fetch 
-// continue without transcript
-if ($transcript != false) {
-    $decoded = json_decode($transcript, true);
-    $segments = $decoded["segments"];
-}
-
-// creating unique id to make sure each block / html elements has unique set of
-// class or id so that there is no collission when rendered multiple components 
-// in single page
-$id = uniqid("unahc");
+$id = $attributes["uniqueId"];
 ?>
-
-<style type="text/css">
-    #container_<?= htmlspecialchars($id) ?>
-        {
-        min-width: 320px;
-        display: flex;
-        flex-direction: column
-    }
-
-    #reduct-video_<?= htmlspecialchars($id) ?>
-        {
-        border-radius: 1rem 1rem 0 0;
-    }
-
-    #transcript_<?= htmlspecialchars($id) ?>
-        {
-        background-color: white;
-        height: 150px;
-        font-size: 16px;
-        margin-bottom: 0.75rem;
-        overflow-y: scroll;
-        border-radius: 0 0 1rem 1rem;
-        box-shadow: 0 0.438rem 0.938rem rgb(0 0 0 / 10%);
-        padding: 20px;
-        font-family: sans-serif;
-        scroll-behavior: smooth;
-    }
-
-    .speaker_<?= htmlspecialchars($id) ?>
-        {
-        font-size: 12px;
-        color: #B3B3B3;
-        margin-bottom: 3px
-    }
-
-    .transcript-word_<?= htmlspecialchars($id) ?>
-        {
-        cursor: pointer;
-        padding: 2px;
-    }
-
-    .transcript-paragraph_<?= htmlspecialchars($id) ?>
-        {
-        margin-bottom: 10px;
-    }
-</style>
 
 <meta name="manifest_<?= htmlspecialchars($id) ?>" content="<?= htmlspecialchars($manifest) ?>">
 <meta name="url_<?= htmlspecialchars($id) ?>" content="<?= htmlspecialchars($base_url) ?>">
 
-<div id="container_<?= htmlspecialchars($id) ?>">
-    <video id="reduct-video_<?= htmlspecialchars($id) ?>" controls
-        poster="<?= htmlspecialchars($base_url) ?>posterframe.jpg"></video>
-
-    <?php
-
-    if (!empty($segments)) {
-        ?>
-        <div id="transcript_<?= htmlspecialchars($id) ?>">
-            <?php
-            foreach ($segments as $segment) {
-                $segment_start = $segment["start"];
-                $segment_end = $segment["end"];
-                $segment_speaker = $segment["speaker_name"] === "" ? "Unnamed Speaker" : $segment["speaker_name"];
-                ?>
-                <div class="speaker_<?= htmlspecialchars($id) ?>"><?php echo $segment_speaker ?></div>
-                <p class="transcript-paragraph_<?= htmlspecialchars($id) ?>" data-start="<?php echo $segment_start ?>"
-                    data-end="<?php echo $segment_end ?>">
-                    <?php
-                    foreach ($segment["wdlist"] as $wordObj) {
-                        $word_start = $wordObj["start"];
-                        $word_end = $wordObj["end"];
-                        $word = $wordObj["word"];
-                        ?>
-                        <span data-start="<?php echo $word_start ?>" data-end="<?php echo $word_end ?>"
-                            class="transcript-word_<?= htmlspecialchars($id) ?>">
-                            <?php echo $word ?>
-                        </span>
-                        <?php
-                    }
-                    ?>
-                </p>
-                <?php
-            }
-            ?>
-        </div>
-        <?php
-    }
+<?php
+echo $domElement
     ?>
+
 </div>
 <script src="https://app.reduct.video/api.js"></script>
 <script>
