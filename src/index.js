@@ -7,15 +7,16 @@ const Icon = <img src={IconImg} />;
 
 const generateDomFromTranscript = (transcript, uniqueId, url) => {
   const container = document.createElement('div');
-  const sharedUrl = url.endsWith("/") ? url : url + "/";
+  const sharedUrl = url.endsWith('/') ? url : url + '/';
 
-  const posterUrl = sharedUrl + "posterframe.jpg";
+  const posterUrl = sharedUrl + 'posterframe.jpg';
 
   const css = `
-    #container_${uniqueId} {
+    #reduct-video-container_${uniqueId} {
         min-width: 320px;
         display: flex;
         flex-direction: column;
+        position: relative;
     }
 
     #reduct-video_${uniqueId} {
@@ -25,7 +26,7 @@ const generateDomFromTranscript = (transcript, uniqueId, url) => {
 
     #transcript_${uniqueId} {
         background-color: white;
-        height: 150px;
+        height: 160px;
         font-size: 16px;
         margin-bottom: 0.75rem;
         overflow-y: scroll;
@@ -49,36 +50,79 @@ const generateDomFromTranscript = (transcript, uniqueId, url) => {
 
     .transcript-paragraph_${uniqueId} {
         margin-bottom: 10px;
-    }`;
+    }
+    
+    #reduct-video-scroll-button_${uniqueId} {
+        font-size: 12px;
+        position: absolute;
+        z-index: 10;
+        bottom: 24px;
+        left: calc(50% - 80px);
+        display: none;
+        background: #353535;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+      }
+      
+      #reduct-video-scroll-button_${uniqueId}:hover {
+        border: none;
+        transform: scale(1.02);
+        box-shadow: 4px 4px 4px rgba(53, 53, 53, 0.22);
+    }
+    
+    #reduct-video-info-tooltip_${uniqueId} {
+      top: -16px;
+      padding: 4px 0px;
+      background: #353535;
+      font-style: italic;
+      color: white;
+      font-size: 16px;
+      animation: disappearAnimation 5s forwards;
+      position: absolute;
+      width: 100%;
+      text-align: center;
+    }
+  }
+    `;
 
   const reactNodes = (
     <>
       <style>{css}</style>
-      <div id={`container_${uniqueId}`}>
-        <video id={`reduct-video_${uniqueId}`} controls poster={posterUrl}/>
-        <div id={`transcript_${uniqueId}`}>
-          {transcript.segments.map((segment, idx) => {
-            const { wdlist, speaker_name = 'Unnamed Speaker' } = segment;
-            return (
-              <React.Fragment key={idx}>
-                <div className={`speaker_${uniqueId}`}>{speaker_name}</div>
-                <p className={`transcript-paragraph_${uniqueId}`}>
-                  {wdlist.map((v, index) => {
-                    const { start, end, word } = v;
-                    return (
-                      <span
-                        className={`transcript-word_${uniqueId}`}
-                        data-start={start}
-                        data-end={end}
-                        key={index}>
-                        {word}
-                      </span>
-                    );
-                  })}
-                </p>
-              </React.Fragment>
-            );
-          })}
+      <div id={`reduct-video-container_${uniqueId}`}>
+        <video id={`reduct-video_${uniqueId}`} controls poster={posterUrl} />
+        <div style={{ position: 'relative' }}>
+          <div id={`transcript_${uniqueId}`}>
+            {transcript.segments.map((segment, idx) => {
+              const { wdlist, speaker_name = 'Unnamed Speaker' } = segment;
+              return (
+                <React.Fragment key={idx}>
+                  <div className={`speaker_${uniqueId}`}>{speaker_name}</div>
+                  <p className={`transcript-paragraph_${uniqueId}`}>
+                    {wdlist.map((v, index) => {
+                      const { start, end, word } = v;
+                      return (
+                        <span
+                          className={`transcript-word_${uniqueId}`}
+                          data-start={start}
+                          data-end={end}
+                          key={index}>
+                          {word}
+                        </span>
+                      );
+                    })}
+                  </p>
+                </React.Fragment>
+              );
+            })}
+          </div>
+          <div id={`reduct-video-info-tooltip_${uniqueId}`}>
+            💡 Quick tip: Click a word in the transcript below to navigate the
+            video.
+          </div>
+          <button id={`reduct-video-scroll-button_${uniqueId}`}>
+            Scroll to Playhead
+          </button>
         </div>
       </div>
     </>
@@ -107,13 +151,6 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
     const [errorMsg, setErrorMsg] = useState('');
     const [isOpen, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
-
-    useEffect(() => {
-      (async function () {
-        const fromDB = await props.attributes.domElement;
-        console.log({ fromDB });
-      })();
-    }, []);
 
     const openModal = () => setOpen(true);
     const closeModal = () => setOpen(false);
@@ -162,7 +199,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
     }
 
     return (
-      <div style={{ padding: '20px', paddingBottom: '600px' }}>
+      <div style={{ padding: '20px' }}>
         <h5>Embed Reduct Video</h5>
         <p>Paste the shared URL</p>
         <div style={{ display: 'flex', width: '100%' }}>
@@ -189,7 +226,11 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
             onClick={updateUrl}>
             {saving ? 'Saving' : 'Embed'}
           </button>
+          <br />
         </div>
+        <div
+          className='preview'
+          style={{ marginTop: '20px', float: 'none' }}></div>
         {errorMsg ? (
           <div style={{ fontSize: '16px', color: 'rgb(236, 83, 65)' }}>
             {errorMsg}
@@ -202,7 +243,6 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
             <p>{'Saved'}</p>
           </Modal>
         )}
-        <div className='preview' style={{ marginTop: '20px' }}></div>
       </div>
     );
   },
