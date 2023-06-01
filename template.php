@@ -144,13 +144,16 @@ echo $domElement
             video.ontimeupdate = syncTranscriptVideo;
         })
 
+        
         const hideTooltipFn = () => {
             container.removeEventListener("click", hideTooltipFn)
+            video.removeEventListener("play", hideTooltipFn);
             setTimeout(() => {
                 tooltip && (tooltip.style.display = "none")
             }, 4000)
         }
-
-        container.addEventListener("click", hideTooltipFn)
+        
+        video.addEventListener("play", hideTooltipFn);
+        container.addEventListener("click", hideTooltipFn);
     })()
 </script>

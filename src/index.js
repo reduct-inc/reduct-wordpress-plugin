@@ -17,7 +17,7 @@ const generateDomFromTranscript = (transcript, uniqueId, url) => {
         display: flex;
         flex-direction: column;
         position: relative;
-        margin: auto
+        margin: auto;
         max-width: var(--responsive--aligndefault-width);
     }
 
