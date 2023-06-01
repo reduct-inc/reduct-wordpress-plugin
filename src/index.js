@@ -151,6 +151,14 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
     const [errorMsg, setErrorMsg] = useState('');
     const [isOpen, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [previewElement, setPreviewElement] = useState(
+      props.attributes.domElement
+    );
+
+    useEffect(() => {
+      if (!previewElement) return;
+      document.querySelector(`.preview_${uniqueId}`).innerHTML = previewElement;
+    }, [previewElement]);
 
     const openModal = () => setOpen(true);
     const closeModal = () => setOpen(false);
@@ -189,7 +197,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
         props.setAttributes({ domElement });
         props.setAttributes({ uniqueId });
 
-        document.querySelector('.preview').innerHTML = domElement;
+        setPreviewElement(domElement);
         openModal();
       } catch (e) {
         setErrorMsg(e.message || 'Error saving.');
@@ -229,7 +237,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
           <br />
         </div>
         <div
-          className='preview'
+          className={`preview_${uniqueId}`}
           style={{ marginTop: '20px', float: 'none' }}></div>
         {errorMsg ? (
           <div style={{ fontSize: '16px', color: 'rgb(236, 83, 65)' }}>
