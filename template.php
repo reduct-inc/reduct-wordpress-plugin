@@ -29,6 +29,9 @@ echo $domElement
     // using anonymous function to limit the scope of the variables declared
     (function () {
         const video = document.getElementById("reduct-video_<?= htmlspecialchars($id) ?>");
+        const scrollToPayloadButton = document.getElementById("reduct-video-scroll-button_<?= htmlspecialchars($id) ?>")
+        const container = document.getElementById("reduct-video-container_<?= htmlspecialchars($id) ?>");
+        const tooltip = document.getElementById("reduct-video-info-tooltip_<?= htmlspecialchars($id) ?>");
 
         async function loadVideo() {
             const manifestFromMeta = document.querySelector('meta[name="manifest_<?= htmlspecialchars($id) ?>"]').content;
@@ -57,9 +60,8 @@ echo $domElement
                 const startTime = element.getAttribute("data-start");
                 if (startTime) {
                     video.currentTime = parseFloat(startTime);
-                    words.forEach(word => {
-                        word.style.backgroundColor = "transparent";
-                    })
+                    scrollToPayloadButton.style.display = "none"
+                    syncTranscriptVideo();
                 }
             }
         })
@@ -67,18 +69,25 @@ echo $domElement
         let lastWordRelativePosition = 0;
         let lastSelectedWord = null;
 
-        video.ontimeupdate = () => {
+        const getCurrentWord = () => {
             const currentTime = video.currentTime;
-
             for (let word of words) {
                 const startTime = word.getAttribute("data-start");
                 const endTime = word.getAttribute("data-end");
 
+                if (currentTime < parseFloat(endTime) - 0.1) return word;
+            }
+        }
+
+        function syncTranscriptVideo() {
+            const currentWord = getCurrentWord();
+
+            for (let word of words) {
                 // setting defaults for visited words
                 word.style.backgroundColor = "transparent";
                 word.style.borderRadius = '0px';
 
-                if (currentTime < parseFloat(endTime) - 0.1) {
+                if (word === currentWord) {
                     word.style.backgroundColor = "#FCA59C";
                     word.style.borderRadius = "5px";
                     word.style.transitionProperty = "left, top, width, height";
@@ -87,21 +96,64 @@ echo $domElement
                     const transcriptHeight = transcriptEle.offsetHeight;
                     const wordHeight = word.offsetHeight;
 
-                    const transcriptScrollPos = transcriptEle.offsetTop
+                    const transcriptScrollPos = transcriptEle.offsetTop;
                     const wordScrollPos = word.offsetTop;
 
                     const wordRelativePos = wordScrollPos - transcriptScrollPos;
 
-                    if (wordRelativePos > transcriptHeight - 2 * wordHeight && wordRelativePos > lastWordRelativePosition) {
-                        transcriptEle.scrollBy(0, 2 * wordHeight);
+                    const visiblePreceedingLines = 3;
+
+                    if (!isInViewport(word, transcriptEle)) {
+                        transcriptEle.scroll(0, wordRelativePos - visiblePreceedingLines * wordHeight);
                     }
-
-                    lastWordRelativePosition = wordRelativePos;
-
-                    // avoid going all the way to the last word on the loop
-                    break;
                 }
             }
         }
+
+        function isInViewport(element, container) {
+            if (!element || !container) return false;
+
+            const containerRect = container.getBoundingClientRect();
+            const elementRect = element.getBoundingClientRect();
+
+            if (elementRect.bottom > containerRect.top && elementRect.bottom < containerRect.bottom) {
+                return true;
+            }
+
+            return false;
+        }
+
+        video.ontimeupdate = syncTranscriptVideo;
+        transcriptEle.addEventListener("scroll", (e) => {
+            const currentTime = video.currentTime;
+
+            const currentWord = getCurrentWord();
+
+            if (isInViewport(currentWord, transcriptEle)) {
+                video.ontimeupdate = syncTranscriptVideo;
+                scrollToPayloadButton.style.display = "none"
+                return;
+            }
+
+            scrollToPayloadButton.style.display = "block"
+            video.ontimeupdate = null;
+        })
+
+        scrollToPayloadButton.addEventListener("click", function () {
+            syncTranscriptVideo();
+            video.ontimeupdate = syncTranscriptVideo;
+        })
+
+        
+        const hideTooltipFn = () => {
+            container.removeEventListener("click", hideTooltipFn)
+            video.removeEventListener("play", hideTooltipFn);
+            setTimeout(() => {
+                tooltip && (tooltip.style.display = "none")
+            }, 4000)
+        }
+        
+        video.addEventListener("play", hideTooltipFn);
+        container.addEventListener("click", hideTooltipFn);
     })()
 </script>
