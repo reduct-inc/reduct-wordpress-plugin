@@ -17,6 +17,8 @@ const generateDomFromTranscript = (transcript, uniqueId, url) => {
         display: flex;
         flex-direction: column;
         position: relative;
+        margin: auto
+        max-width: var(--responsive--aligndefault-width);
     }
 
     #reduct-video_${uniqueId} {
@@ -234,7 +236,6 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
             onClick={updateUrl}>
             {saving ? 'Saving' : 'Embed'}
           </button>
-          <br />
         </div>
         <div
           className={`preview_${uniqueId}`}
