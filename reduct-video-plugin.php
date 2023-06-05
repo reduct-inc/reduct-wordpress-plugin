@@ -2,7 +2,7 @@
 /*
 Plugin name: Reduct Video Plugin
 Description: Plugin to add reduct video shared video to any WP site
-Version: 1.2.0
+Version: 1.2.1
 Author: Reduct Video
 */
 
@@ -40,10 +40,12 @@ class Plugin
     {
         ob_start();
         include __DIR__ . "/template.php";
-        return ob_get_clean();
+        $output = ob_get_clean();
+        return $output;
     }
 
-    function transcript_route($request) {
+    function transcript_route($request)
+    {
         $response = new WP_REST_Response;
 
         $url_contents = $request->get_params();
