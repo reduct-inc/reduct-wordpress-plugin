@@ -23,137 +23,181 @@ $id = $attributes["uniqueId"];
 echo $domElement
     ?>
 
-</div>
-<script src="https://app.reduct.video/api.js"></script>
 <script>
-    // using anonymous function to limit the scope of the variables declared
-    (function () {
-        const video = document.getElementById("reduct-video_<?= htmlspecialchars($id) ?>");
-        const scrollToPayloadButton = document.getElementById("reduct-video-scroll-button_<?= htmlspecialchars($id) ?>")
-        const container = document.getElementById("reduct-video-container_<?= htmlspecialchars($id) ?>");
-        const tooltip = document.getElementById("reduct-video-info-tooltip_<?= htmlspecialchars($id) ?>");
+    (async () => {
+        function loadReductApiScript() {
+            return new Promise((res, rej) => {
+                const script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.src = 'https://app.reduct.video/api.js';
 
-        async function loadVideo() {
-            const manifestFromMeta = document.querySelector('meta[name="manifest_<?= htmlspecialchars($id) ?>"]').content;
-            const manifest = JSON.parse(manifestFromMeta);
+                script.addEventListener('load', () => {
+                    res('Success.');
+                });
 
-            const urlFromMeta = document.querySelector('meta[name="url_<?= htmlspecialchars($id) ?>"]').content;
-            const siteUrl = "<?= htmlspecialchars($site_url) ?>";
-            const url = `${siteUrl}/?rest_route=/reduct-plugin/v1/video/${urlFromMeta.split("/e/")[1]}`;
-            Reduct.getSharePlayerFromManifest(video, manifest, url)
+                script.addEventListener('error', () => {
+                    rej({
+                        message: 'Error loading script.',
+                    });
+                });
+
+                document.head.appendChild(script);
+            });
         }
 
-        loadVideo();
-
-        // using event delegation
-        const transcriptEle = document.getElementById("transcript_<?= htmlspecialchars($id) ?>");
-
-        if (!transcriptEle) {
-            return;
-        }
-
-        const words = document.querySelectorAll(".transcript-word_<?= htmlspecialchars($id) ?>");
-
-        transcriptEle.addEventListener("click", (e) => {
-            const element = e.target
-            if (element.classList.contains("transcript-word_<?= htmlspecialchars($id) ?>")) {
-                const startTime = element.getAttribute("data-start");
-                if (startTime) {
-                    video.currentTime = parseFloat(startTime);
-                    scrollToPayloadButton.style.display = "none"
-                    syncTranscriptVideo();
-                }
-            }
-        })
-
-        let lastWordRelativePosition = 0;
-        let lastSelectedWord = null;
-
-        const getCurrentWord = () => {
-            const currentTime = video.currentTime;
-            for (let word of words) {
-                const startTime = word.getAttribute("data-start");
-                const endTime = word.getAttribute("data-end");
-
-                if (currentTime < parseFloat(endTime) - 0.1) return word;
-            }
-        }
-
-        function syncTranscriptVideo() {
-            const currentWord = getCurrentWord();
-
-            for (let word of words) {
-                // setting defaults for visited words
-                word.style.backgroundColor = "transparent";
-                word.style.borderRadius = '0px';
-
-                if (word === currentWord) {
-                    word.style.backgroundColor = "#FCA59C";
-                    word.style.borderRadius = "5px";
-                    word.style.transitionProperty = "left, top, width, height";
-                    word.style.transitionDuration = "0.1s";
-
-                    const transcriptHeight = transcriptEle.offsetHeight;
-                    const wordHeight = word.offsetHeight;
-
-                    const transcriptScrollPos = transcriptEle.offsetTop;
-                    const wordScrollPos = word.offsetTop;
-
-                    const wordRelativePos = wordScrollPos - transcriptScrollPos;
-
-                    const visiblePreceedingLines = 3;
-
-                    if (!isInViewport(word, transcriptEle)) {
-                        transcriptEle.scroll(0, wordRelativePos - visiblePreceedingLines * wordHeight);
+        async function waitForScriptLoad(checkInterval = 1000) {
+            return new Promise((res, _) => {
+                const timer = setInterval(() => {
+                    if (window.Reduct.getSharePlayerFromManifest) {
+                        clearInterval(timer);
+                        res();
                     }
-                }
-            }
+                }, checkInterval);
+            });
         }
 
-        function isInViewport(element, container) {
-            if (!element || !container) return false;
 
-            const containerRect = container.getBoundingClientRect();
-            const elementRect = element.getBoundingClientRect();
+        function loadTranscriptEvent() {
+            const video = document.getElementById("reduct-video_<?= htmlspecialchars($id) ?>");
+            const scrollToPayloadButton = document.getElementById("reduct-video-scroll-button_<?= htmlspecialchars($id) ?>")
+            const container = document.getElementById("reduct-video-container_<?= htmlspecialchars($id) ?>");
+            const tooltip = document.getElementById("reduct-video-info-tooltip_<?= htmlspecialchars($id) ?>");
 
-            if (elementRect.bottom > containerRect.top && elementRect.bottom < containerRect.bottom) {
-                return true;
+            async function loadVideo() {
+                const manifestFromMeta = document.querySelector('meta[name="manifest_<?= htmlspecialchars($id) ?>"]').content;
+                const manifest = JSON.parse(manifestFromMeta);
+
+                const urlFromMeta = document.querySelector('meta[name="url_<?= htmlspecialchars($id) ?>"]').content;
+                const siteUrl = "<?= htmlspecialchars($site_url) ?>";
+                const url = `${siteUrl}/?rest_route=/reduct-plugin/v1/video/${urlFromMeta.split("/e/")[1]}`;
+                Reduct.getSharePlayerFromManifest(video, manifest, url)
             }
 
-            return false;
-        }
+            loadVideo();
 
-        video.ontimeupdate = syncTranscriptVideo;
-        transcriptEle.addEventListener("scroll", (e) => {
-            const currentTime = video.currentTime;
+            // using event delegation
+            const transcriptEle = document.getElementById("transcript_<?= htmlspecialchars($id) ?>");
 
-            const currentWord = getCurrentWord();
-
-            if (isInViewport(currentWord, transcriptEle)) {
-                video.ontimeupdate = syncTranscriptVideo;
-                scrollToPayloadButton.style.display = "none"
+            if (!transcriptEle) {
                 return;
             }
 
-            scrollToPayloadButton.style.display = "block"
-            video.ontimeupdate = null;
-        })
+            const words = document.querySelectorAll(".transcript-word_<?= htmlspecialchars($id) ?>");
 
-        scrollToPayloadButton.addEventListener("click", function () {
-            syncTranscriptVideo();
+            transcriptEle.addEventListener("click", (e) => {
+                const element = e.target
+                if (element.classList.contains("transcript-word_<?= htmlspecialchars($id) ?>")) {
+                    const startTime = element.getAttribute("data-start");
+                    if (startTime) {
+                        video.currentTime = parseFloat(startTime);
+                        scrollToPayloadButton.style.display = "none"
+                        syncTranscriptVideo();
+                    }
+                }
+            })
+
+            let lastWordRelativePosition = 0;
+            let lastSelectedWord = null;
+
+            const getCurrentWord = () => {
+                const currentTime = video.currentTime;
+                for (let word of words) {
+                    const startTime = word.getAttribute("data-start");
+                    const endTime = word.getAttribute("data-end");
+
+                    if (currentTime < parseFloat(endTime) - 0.1) return word;
+                }
+            }
+
+            function syncTranscriptVideo() {
+                const currentWord = getCurrentWord();
+
+                for (let word of words) {
+                    // setting defaults for visited words
+                    word.style.backgroundColor = "transparent";
+                    word.style.borderRadius = '0px';
+
+                    if (word === currentWord) {
+                        word.style.backgroundColor = "#FCA59C";
+                        word.style.borderRadius = "5px";
+                        word.style.transitionProperty = "left, top, width, height";
+                        word.style.transitionDuration = "0.1s";
+
+                        const transcriptHeight = transcriptEle.offsetHeight;
+                        const wordHeight = word.offsetHeight;
+
+                        const transcriptScrollPos = transcriptEle.offsetTop;
+                        const wordScrollPos = word.offsetTop;
+
+                        const wordRelativePos = wordScrollPos - transcriptScrollPos;
+
+                        const visiblePreceedingLines = 3;
+
+                        if (!isInViewport(word, transcriptEle)) {
+                            transcriptEle.scroll(0, wordRelativePos - visiblePreceedingLines * wordHeight);
+                        }
+                    }
+                }
+            }
+
+            function isInViewport(element, container) {
+                if (!element || !container) return false;
+
+                const containerRect = container.getBoundingClientRect();
+                const elementRect = element.getBoundingClientRect();
+
+                if (elementRect.bottom > containerRect.top && elementRect.bottom < containerRect.bottom) {
+                    return true;
+                }
+
+                return false;
+            }
+
             video.ontimeupdate = syncTranscriptVideo;
-        })
+            transcriptEle.addEventListener("scroll", (e) => {
+                const currentTime = video.currentTime;
 
-        
-        const hideTooltipFn = () => {
-            container.removeEventListener("click", hideTooltipFn)
-            video.removeEventListener("play", hideTooltipFn);
-            setTimeout(() => {
-                tooltip && (tooltip.style.display = "none")
-            }, 4000)
+                const currentWord = getCurrentWord();
+
+                if (isInViewport(currentWord, transcriptEle)) {
+                    video.ontimeupdate = syncTranscriptVideo;
+                    scrollToPayloadButton.style.display = "none"
+                    return;
+                }
+
+                scrollToPayloadButton.style.display = "block"
+                video.ontimeupdate = null;
+            })
+
+            scrollToPayloadButton.addEventListener("click", function () {
+                syncTranscriptVideo();
+                video.ontimeupdate = syncTranscriptVideo;
+            })
+
+
+            const hideTooltipFn = () => {
+                container.removeEventListener("click", hideTooltipFn)
+                video.removeEventListener("play", hideTooltipFn);
+                setTimeout(() => {
+                    tooltip && (tooltip.style.display = "none")
+                }, 4000)
+            }
+
+            video.addEventListener("play", hideTooltipFn);
+            container.addEventListener("click", hideTooltipFn);
         }
-        
-        video.addEventListener("play", hideTooltipFn);
-        container.addEventListener("click", hideTooltipFn);
-    })()
+
+
+        if (!window.Reduct) {
+            window.Reduct = {};
+            await loadReductApiScript();
+        }
+
+        if (!window.Reduct.getSharePlayerFromManifest) {
+            await waitForScriptLoad();
+        }
+
+        loadTranscriptEvent();
+    })();
 </script>
