@@ -153,13 +153,9 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
     const [isOpen, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
     const [previewElement, setPreviewElement] = useState(
-      props.attributes.domElement
+      props.attributes.domElement || null
     );
 
-    useEffect(() => {
-      if (!previewElement) return;
-      document.querySelector(`.preview_${uniqueId}`).innerHTML = previewElement;
-    }, [previewElement]);
 
     const openModal = () => setOpen(true);
     const closeModal = () => setOpen(false);
@@ -237,7 +233,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
           </button>
         </div>
         <div
-          className={`preview_${uniqueId}`}
+          dangerouslySetInnerHTML={{ __html: previewElement }}
           style={{ marginTop: '20px', float: 'none' }}></div>
         {errorMsg ? (
           <div style={{ fontSize: '16px', color: 'rgb(236, 83, 65)' }}>
