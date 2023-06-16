@@ -1,48 +1,139 @@
 <?php
 /*
-Plugin name: Reduct Video Plugin
+Plugin name: Reduct Video Reel Embed Elementor Widget
 Description: Plugin to add reduct video shared video to any WP site
-Version: 1.2.2
 Author: Reduct Video
 */
 
 if (!defined('ABSPATH')) // exit if try to access from the browser directly
     exit;
 
-define("VIDEO_RESOURCE_URL", "https://app.reduct.video/e/");
+class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base {
 
-class Plugin 
-{
+    /**
+	 * Get widget name.
+	 *
+	 * Retrieve reduct reel embed widget name.
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 * @return string Widget name.
+	 */
+
+	public function get_name() {
+		return 'reductReelEmbed';
+	}
+
+	/**
+	 * Get widget title.
+	 *
+	 * Retrieve reduct reel embed widget title.
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 * @return string Widget title.
+	 */
+
+	public function get_title() {
+		return esc_html__( 'reductReelEmbed', 'reduct-embed-elementor' );
+	}
+
+	/**
+	 * Get widget icon.
+	 *
+	 * Retrieve reduct reel embed widget  icon.
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 * @return string Widget icon.
+	 */
+
+	public function get_icon() {
+		return 'eicon-code';
+	}
+
+    /**
+	 * Get widget categories.
+	 *
+	 * Retrieve the list of categories the oEmbed widget belongs to.
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 * @return array Widget categories.
+	 */
+	public function get_categories() {
+		return [ 'general' ];
+	}
+
+    /**
+	 * Get widget keywords.
+	 *
+	 * Retrieve the list of keywords the reduct reel embed widget belongs to.
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 * @return array Widget keywords.
+	 */
+    
+	public function get_keywords() {
+		return [ 'embed', 'reduct', 'reel', 'url', 'link' ];
+	}
+
     function __construct()
     {
         add_action('init', array($this, 'adminAssets'));
         add_action('rest_api_init', array($this, 'rest_api_routes'));
     }
 
-    function adminAssets()
-    {
-        wp_register_script(
-            'blockType' /* name given to JS file */,
-            plugin_dir_url(__FILE__) . 'build/index.js',
-            array('wp-blocks', 'wp-element', 'wp-components'),
-            1.0,
-            true
-        );
+    /**
+	 * Get script handles on which widget depends.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array Script handles.
+	 */
+	public function get_script_depends() {
+		return array( 'reduct-elementor' );
+	}
 
-        wp_localize_script('blockType', 'WP_PROPS', array('site_url' => get_site_url()));
+    /**
+	 * Register reduct reel embed widget controls.
+	 *
+	 * Add input fields to allow the user to customize the widget settings.
+	 *
+	 * @since 1.0.0
+	 * @access protected
+	 */
 
-        // first param -> same as name described in js
-        register_block_type("reduct-plugin/configs", array('editor_script' => 'blockType', 'render_callback' => array($this, 'frontendHTML')));
+	protected function register_controls() {
+
+		$this->start_controls_section(
+			'content_section',
+			[
+				'label' => esc_html__( 'Content', 'reduct-embed-elementor' ),
+				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+			]
+		);
+
+		$this->add_control(
+			'url',
+			[
+				'label' => esc_html__( 'URL to embed', 'reduct-embed-elementor' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'input_type' => 'url',
+				'placeholder' => esc_html__( 'https://reel-link.com', 'reduct-embed-elementor' ),
+			]
+		);
+
+		$this->end_controls_section();
+
+	}
+
+    function adminAssets(){
+		wp_register_script( 'reduct-elementor', dirname(__DIR__) . '/src/reductElementor.js');
+        wp_enqueue_script('reduct-elementor');
     }
 
-    // attributes are coming from js as params
-    function frontendHTML($attributes)
-    {
-        ob_start();
-        include __DIR__ . "/template.php";
-        $output = ob_get_clean();
-        return $output;
-    }
 
     function transcript_route($request)
     {
@@ -159,8 +250,29 @@ class Plugin
         );
     }
 
+    /**
+	 * Render reduct video reel embed widget output on the frontend.
+	 *
+	 * Written in PHP and used to generate the final HTML.
+	 *
+	 * @since 1.0.0
+	 * @access protected
+	 */
+
+	protected function render() {
+
+		$settings = $this->get_settings_for_display();
+		$html = wp_reduct_embed_get( $settings['url'] );
+
+		echo '<div class="reduct-embed-elementor">';
+		echo ( $html ) ? $html : $settings['url'];
+		echo '</div>';
+	}
+
+    // Render the widget output in the editor
+    protected function _content_template() {
+		echo '<div>';
+		echo '</div>';
+    }
 
 }
-
-$plugin = new Plugin();
-?>
