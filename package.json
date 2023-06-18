@@ -21,9 +21,12 @@
 	"license": "ISC",
 	"files": [
 		"reduct-video-plugin.php",
+		"reduct-embed-elementor.php",
+		"reduct-embed-elementor-widget.php",
 		"template.php",
 		"build/index.js",
 		"build/index.asset.php",
+		"build/elementorWidget.js",
 		".npmignore"
 	],
 	"devDependencies": {
