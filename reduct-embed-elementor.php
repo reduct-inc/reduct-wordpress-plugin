@@ -2,6 +2,7 @@
 /*
 Plugin Name: Reduct Video Reel Embed Elementor Widget
 Description: Plugin to add reduct video shared video to any WP site
+Version: 1.3.0
 Author: Reduct Video
 */
 
