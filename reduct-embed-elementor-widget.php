@@ -17,17 +17,17 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 {
 	public function get_name()
 	{
-		return 'reductReelEmbed';
+		return 'Reduct Embed';
 	}
 
 	public function get_title()
 	{
-		return esc_html__('reductReelEmbed', 'reduct-embed-elementor');
+		return esc_html__('Reduct Embed', 'reduct-embed-elementor');
 	}
 
 	public function get_icon()
 	{
-		return 'eicon-code';
+		return 'eicon-video-playlist';
 	}
 	public function get_categories()
 	{
@@ -106,8 +106,8 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 	{
 		?>
 		<div>
-			<# var domElement = settings.reductDomElement; #>
-			{{{domElement}}}
+			<# var domElement=settings.reductDomElement; #>
+				{{{domElement}}}
 		</div>
 		<?php
 	}
