@@ -31,14 +31,14 @@ function register_reduct_reel_embed_widget($widgets_manager)
 function enqueue_custom_script()
 {
 	wp_enqueue_script(
-		'me',
+		'elementorWidget',
 		plugin_dir_url(__FILE__) . 'build/elementorWidget.js',
 		array('jquery','wp-blocks', 'wp-element', 'wp-components'),
 		'1.0.0',
 		true
 	);
 
-	wp_localize_script('me', 'WP_PROPS', array('site_url' => get_site_url()));
+	wp_localize_script('elementorWidget', 'WP_PROPS', array('site_url' => get_site_url()));
 }
 add_action('elementor/frontend/after_enqueue_scripts', 'enqueue_custom_script');
 
