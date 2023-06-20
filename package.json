@@ -26,7 +26,6 @@
     "build/elementorWidget.js",
     "reduct-video-plugin.php",
     "template.php",
-    "widget/emptyTranscript.png",
     "widget/reduct-embed-elementor-widget.php"
   ],
   "devDependencies": {

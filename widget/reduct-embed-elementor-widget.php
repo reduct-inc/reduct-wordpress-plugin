@@ -99,13 +99,6 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 	{
 		$settings = $this->get_settings_for_display();
 
-		if ($settings['url'] == '' && $settings['reductDomElement'] == '') {
-			$image = plugin_dir_url(__FILE__) . "/emptyTranscript.png";
-			echo '<img style="width: 100%" src="' . $image . '" alt="Image">';
-			return;
-		}
-
-
 		$attributes = array("url" => $settings['url'], "domElement" => $settings['reductDomElement'], "uniqueId" => $settings["uniqueId"]);
 		require dirname(__FILE__) . "/../template.php";
 	}
