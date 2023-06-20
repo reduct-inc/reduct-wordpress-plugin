@@ -44,7 +44,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
 
         const siteUrl = WP_PROPS.site_url;
 
-        const transcript = await fetchTranscript(siteUrl);
+        const transcript = await fetchTranscript(siteUrl, url);
         const domElement = generateDomFromTranscript(transcript, uniqueId, url);
 
         props.setAttributes({ url });

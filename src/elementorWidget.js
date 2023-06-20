@@ -1,13 +1,5 @@
 import generateDomFromTranscript from './reelDOM';
-
-async function cacheTranscript(siteUrl, url) {
-  const transcriptRes = await fetch(
-    `${siteUrl}/?rest_route=/reduct-plugin/v1/transcript/${url.split('/e/')[1]}`
-  );
-
-  const transcript = await transcriptRes.json();
-  return transcript;
-}
+import { fetchTranscript } from './utils';
 
 (function ($) {
   $(window).on('elementor/frontend/init', function () {
@@ -27,7 +19,7 @@ async function cacheTranscript(siteUrl, url) {
         uniqueIdDOM.value = Date.now();
       }
 
-      const transcript = await cacheTranscript(WP_PROPS.site_url, url);
+      const transcript = await fetchTranscript(WP_PROPS.site_url, url);
 
       const DOMElement = generateDomFromTranscript(
         transcript,
