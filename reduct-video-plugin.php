@@ -2,7 +2,7 @@
 /*
 Plugin name: Reduct Video Plugin
 Description: Plugin to add reduct video shared video to any WP site
-Version: 1.2.2
+Version: 1.3.0
 Author: Reduct Video
 */
 
@@ -11,15 +11,26 @@ if (!defined('ABSPATH')) // exit if try to access from the browser directly
 
 define("VIDEO_RESOURCE_URL", "https://app.reduct.video/e/");
 
+function is_plugin_installed_and_active($plugin)
+{
+    return in_array($plugin, (array) get_option('active_plugins', array()));
+}
+
 class Plugin
 {
     function __construct()
     {
-        add_action('init', array($this, 'adminAssets'));
+        add_action('init', array($this, 'load_gutenberg_block'));
+        
+        if (is_plugin_installed_and_active('elementor/elementor.php')) {
+            $this->load_elementor_widget();
+        }
+
+        // register routes
         add_action('rest_api_init', array($this, 'rest_api_routes'));
     }
 
-    function adminAssets()
+    function load_gutenberg_block()
     {
         wp_register_script(
             'blockType' /* name given to JS file */,
@@ -42,6 +53,33 @@ class Plugin
         include __DIR__ . "/template.php";
         $output = ob_get_clean();
         return $output;
+    }
+
+    function load_elementor_widget()
+    {
+        add_action('elementor/widgets/register', array($this, 'register_reduct_reel_embed_widget'));
+        add_action('elementor/frontend/after_enqueue_scripts', array($this, 'enqueue_custom_script'));
+    }
+
+    function register_reduct_reel_embed_widget($widgets_manager)
+    {
+
+        require_once(__DIR__ . '/widget/reduct-embed-elementor-widget.php');
+
+        $widgets_manager->register(new \Elementor_Reduct_Reel_Embed_Widget());
+    }
+
+    function enqueue_custom_script()
+    {
+        wp_enqueue_script(
+            'elementorWidget',
+            plugin_dir_url(__FILE__) . 'build/elementorWidget.js',
+            array('jquery', 'wp-blocks', 'wp-element', 'wp-components'),
+            '1.0.0',
+            true
+        );
+
+        wp_localize_script('elementorWidget', 'WP_PROPS', array('site_url' => get_site_url()));
     }
 
     function transcript_route($request)
