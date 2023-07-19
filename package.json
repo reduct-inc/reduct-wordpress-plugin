@@ -25,6 +25,7 @@
     "build/index.asset.php",
     "build/elementorWidget.js",
     "reduct-video-plugin.php",
+    "src/gutenberg.css",
     "template.php",
     "widget/reduct-embed-elementor-widget.php"
   ],

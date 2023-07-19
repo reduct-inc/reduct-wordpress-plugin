@@ -21,7 +21,7 @@ class Plugin
     function __construct()
     {
         add_action('init', array($this, 'load_gutenberg_block'));
-        
+
         if (is_plugin_installed_and_active('elementor/elementor.php')) {
             $this->load_elementor_widget();
         }
@@ -42,6 +42,8 @@ class Plugin
 
         wp_localize_script('blockType', 'WP_PROPS', array('site_url' => get_site_url()));
 
+        wp_enqueue_style('blockTypeStyle', plugin_dir_url(__FILE__) . 'src/gutenberg.css', null, 1.0);
+
         // first param -> same as name described in js
         register_block_type("reduct-plugin/configs", array('editor_script' => 'blockType', 'render_callback' => array($this, 'frontendHTML')));
     }
@@ -49,6 +51,28 @@ class Plugin
     // attributes are coming from js as params
     function frontendHTML($attributes)
     {
+        $highlightColor = $attributes["highlightColor"];
+        $transcriptHeight = $attributes["transcriptHeight"];
+        $borderRadius = $attributes["borderRadius"];
+
+        // adding "/" if url is missing it
+        $base_url = $attributes["url"];
+        $domElement = $attributes["domElement"];
+        $id = $attributes["uniqueId"];
+
+
+        $site_url = get_site_url();
+
+        if (!str_ends_with($attributes["url"], "/")) {
+            $base_url = $attributes["url"] . "/";
+        }
+
+        $manifest = file_get_contents($base_url . "burn?type=json");
+
+        $segments = array();
+
+        wp_enqueue_script('video-load-script', plugin_dir_url(__FILE__) . 'src/videoLoadScript.js', null, '1.0', true);
+        wp_localize_script('video-load-script', 'WP_PROPS', array('highlightColor' => $highlightColor, "transcriptHeight" => $transcriptHeight, "site_url" => get_site_url(), "id" => $id, "stringifiedManifest" => $manifest, "transcriptUrl" => $base_url, "attributes" => $attributes, "borderRadius" => $borderRadius));
         ob_start();
         include __DIR__ . "/template.php";
         $output = ob_get_clean();
@@ -80,6 +104,7 @@ class Plugin
         );
 
         wp_localize_script('elementorWidget', 'WP_PROPS', array('site_url' => get_site_url()));
+        wp_enqueue_style('elementorWidget', plugin_dir_url(__FILE__) . 'src/gutenberg.css', null, 1.0);
     }
 
     function transcript_route($request)
