@@ -176,7 +176,9 @@
         return;
       }
 
-      scrollToPayloadButton.style.display = 'block';
+      if (!video.paused) {
+        scrollToPayloadButton.style.display = 'block';
+      }
       video.ontimeupdate = null;
     });
 
@@ -216,7 +218,10 @@
     };
 
     video.addEventListener('play', toggleTranscriptExpansion);
-    video.addEventListener('pause', toggleTranscriptExpansion);
+    video.addEventListener('pause', () => {
+      toggleTranscriptExpansion();
+      scrollToPayloadButton.style.display = 'none';
+    });
 
     container.addEventListener('click', hideTooltipFn);
     expandButton && expandButton.addEventListener('click', togglePlayPause);
