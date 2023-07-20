@@ -60,11 +60,10 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 			]
 		);
 
-
 		$this->add_control(
 			'transcriptHeight',
 			[
-				'label' => esc_html__('Transcript Window Height (px):', 'reduct-embed-elementor'),
+				'label' => esc_html__('Transcript Height (px):', 'reduct-embed-elementor'),
 				'type' => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => ['px'],
 				'step' => 1,
@@ -80,7 +79,7 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 					'size' => 160,
 				],
 				'selectors' => [
-					'{{WRAPPER}} .reduct-plugin-transcript' => 'height: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .reduct-plugin-transcript-wrapper' => 'height: {{SIZE}}{{UNIT}};',
 				],
 			]
 		);
@@ -89,11 +88,20 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 			'borderRadius',
 			[
 				'label' => esc_html__('Border Radius (px):', 'reduct-embed-elementor'),
-				'type' => \Elementor\Controls_Manager::NUMBER,
-				'min' => 0,
-				'max' => 40,
+				'type' => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px'],
 				'step' => 1,
-				'default' => 5,
+				'range' => [
+					'px' => [
+						'min' => 0,
+						'max' => 40,
+						'step' => 1,
+					],
+				],
+				'default' => [
+					'unit' => 'px',
+					'size' => 22,
+				],
 				'selectors' => [
 					'{{WRAPPER}} .reduct-plugin-container' => 'border-radius: {{SIZE}}px;',
 				],
