@@ -79,7 +79,7 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 					'size' => 160,
 				],
 				'selectors' => [
-					'{{WRAPPER}} .reduct-plugin-transcript-wrapper' => 'height: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .reduct-plugin-transcript-wrapper' => 'height: {{SIZE}}{{UNIT}} !important;',
 				],
 			]
 		);
@@ -103,7 +103,7 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 					'size' => 22,
 				],
 				'selectors' => [
-					'{{WRAPPER}} .reduct-plugin-container' => 'border-radius: {{SIZE}}px;',
+					'{{WRAPPER}} .reduct-plugin-container' => 'border-radius: {{SIZE}}px !important;',
 				],
 			]
 		);
