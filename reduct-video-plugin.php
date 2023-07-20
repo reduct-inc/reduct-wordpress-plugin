@@ -42,7 +42,7 @@ class Plugin
 
         wp_localize_script('blockType', 'WP_PROPS', array('site_url' => get_site_url()));
 
-        wp_enqueue_style('blockType', plugin_dir_url(__FILE__) . 'src/gutenberg.css', null, 1.0);
+        wp_enqueue_style('blockType', plugin_dir_url(__FILE__) . 'src/base-style.css', null, 1.0);
 
         // first param -> same as name described in js
         register_block_type("reduct-plugin/configs", array('editor_script' => 'blockType', 'render_callback' => array($this, 'frontendHTML')));
@@ -122,7 +122,7 @@ class Plugin
         );
 
         wp_localize_script('elementorWidget', 'WP_PROPS', array('site_url' => get_site_url()));
-        wp_enqueue_style('elementorWidget', plugin_dir_url(__FILE__) . 'src/gutenberg.css', null, 1.0);
+        wp_enqueue_style('elementorWidget', plugin_dir_url(__FILE__) . 'src/base-style.css', null, 1.0);
     }
 
     function transcript_route($request)
