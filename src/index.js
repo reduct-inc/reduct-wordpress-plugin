@@ -170,7 +170,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
             <fieldset className='reduct-plugin-input-field'>
               <RangeControl
                 label='Border Radius (px):'
-                value={parseInt(config.border)}
+                value={parseInt(config.borderRadius)}
                 onChange={(value) =>
                   setConfig({
                     ...config,
