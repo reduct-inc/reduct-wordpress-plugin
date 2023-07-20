@@ -103,7 +103,7 @@
         if (startTime) {
           video.currentTime = parseFloat(startTime);
           scrollToPayloadButton.style.display = 'none';
-          syncTranscriptVideo();
+          video.ontimeupdate = syncTranscriptVideo;
         }
       }
     });
@@ -181,7 +181,6 @@
     });
 
     scrollToPayloadButton.addEventListener('click', function () {
-      syncTranscriptVideo();
       video.ontimeupdate = syncTranscriptVideo;
     });
 
