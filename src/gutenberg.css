@@ -79,8 +79,8 @@
   bottom: 24px;
   left: calc(50% - 80px);
   display: none;
-  background: #353535;
-  color: white;
+  background-color: #353535 !important;
+  color: white !important;
   border: none;
   padding: 8px 12px;
 }
