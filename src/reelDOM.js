@@ -2,8 +2,8 @@ const generateDomFromTranscript = ({
   transcript,
   uniqueId,
   url,
-  transcriptHeight,
-  borderRadius,
+  transcriptHeight = "160px",
+  borderRadius = "22px",
 }) => {
   const transcriptJson = JSON.parse(transcript);
   const container = document.createElement('div');
