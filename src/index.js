@@ -1,12 +1,9 @@
 // dependency added from the php wp
 import { useState, useRef, useEffect } from '@wordpress/element';
-import { Modal } from '@wordpress/components';
+import { Modal, RangeControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-import {
-  useBlockProps,
-  InspectorControls,
-} from '@wordpress/block-editor';
+import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 
 import IconImg from './icon.svg';
 import generateDomFromTranscript from './reelDOM';
@@ -39,7 +36,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
 
     const [config, setConfig] = useState({
       transcriptHeight: props.attributes.transcriptHeight || '160px',
-      borderRadius: props.attributes.borderRadius || '15px',
+      borderRadius: props.attributes.borderRadius || '22px',
       highlightColor: props.attributes.highlightColor || '#FCA59C',
     });
 
@@ -92,7 +89,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
       const transcript_container = container.querySelector(
         `.reduct-plugin-transcript-wrapper`
       );
-      
+
       const { transcriptHeight, borderRadius, highlightColor } = config;
 
       container.style.borderRadius = borderRadius;
@@ -157,72 +154,31 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
             id='gutenpride-controls'
             style={{ fontSize: '16px', padding: '0px 16px' }}>
             <fieldset className='reduct-plugin-input-field'>
-              <label for='transcript-height-input'>
-                <strong>Transcript Window Height (px):</strong>
-              </label>
-              <input
-                type='number'
-                id='transcript-height-input'
-                name='transcript-height-input'
-                className='reduct-plugin-number-input'
-                min={100}
-                max={400}
+              <RangeControl
+                label='Transcript Height (px):'
                 value={parseInt(config.transcriptHeight)}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value > 400 || value < 0) return;
-
+                onChange={(value) =>
                   setConfig({
                     ...config,
                     transcriptHeight: `${value}px`,
-                  });
-                }}
-              />
-            </fieldset>
-
-            <fieldset>
-              <input
-                type='range'
-                id='transcript-height-input-slider'
-                name='transcript-height-input-slider'
-                className='reduct-plugin-slider-input'
+                  })
+                }
                 min={160}
                 max={400}
-                value={parseInt(config.transcriptHeight)}
-                onChange={(e) => {
-                  setConfig({
-                    ...config,
-                    transcriptHeight: `${e.target.value}px`,
-                  });
-                }}
               />
             </fieldset>
-
             <fieldset className='reduct-plugin-input-field'>
-              <label for='border-radius-input'>
-                <strong>Border Radius (px):</strong>
-              </label>
-              <input
-                type='number'
-                min={0}
-                max={40}
-                id='border-radius-input'
-                name='border-radius-input'
-                value={parseInt(config.borderRadius)}
-                className='reduct-plugin-number-input'
-                style={{
-                  MozAppearance: 'textfield',
-                  WebkitAppearance: 'none',
-                }}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value > 40 || value < 0) return;
-
+              <RangeControl
+                label='Border Radius (px):'
+                value={parseInt(config.border)}
+                onChange={(value) =>
                   setConfig({
                     ...config,
                     borderRadius: `${value}px`,
-                  });
-                }}
+                  })
+                }
+                min={0}
+                max={40}
               />
             </fieldset>
           </div>
