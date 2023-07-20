@@ -92,7 +92,6 @@
 
     loadVideo();
 
-    // using event delegation
     if (!transcriptEle) {
       return;
     }
