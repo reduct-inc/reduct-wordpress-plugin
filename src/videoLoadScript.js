@@ -4,7 +4,7 @@
     site_url,
     stringifiedManifest,
     transcriptHeight = '160px',
-    borderRadius = '5px',
+    borderRadius = '22px',
     highlightColor = '#FCA59C',
     transcriptUrl,
   } = WP_PROPS;
@@ -44,20 +44,41 @@
   function loadTranscriptEvent() {
     const transcriptHeightValue = parseInt(transcriptHeight);
 
-    const container = document.getElementById(`reduct-plugin-video-${id}`);
-    const video = container.querySelector('.reduct-plugin-video');
-    const scrollToPayloadButton = container.querySelector(
-      '.reduct-plugin-scroll-button'
-    );
-    const tooltip = container.querySelector('.reduct-plugin-info-tooltip');
-    const expandButton = container.querySelector('.reduct-plugin-expand-btn');
-    const transcriptEle = container.querySelector('.reduct-plugin-transcript');
-    const transcriptWrapper = container.querySelector(
-      '.reduct-plugin-transcript-wrapper'
-    );
+    let container = document.getElementById(`reduct-plugin-video-${id}`),
+      video,
+      scrollToPayloadButton,
+      tooltip,
+      expandButton,
+      transcriptEle,
+      transcriptWrapper,
+      words;
 
-    container.style.borderRadius = borderRadius;
-    transcriptWrapper.style.height = transcriptHeight;
+    if (container) {
+      video = container.querySelector('.reduct-plugin-video');
+      scrollToPayloadButton = container.querySelector(
+        '.reduct-plugin-scroll-button'
+      );
+      tooltip = container.querySelector('.reduct-plugin-info-tooltip');
+      expandButton = container.querySelector('.reduct-plugin-expand-btn');
+      transcriptEle = container.querySelector('.reduct-plugin-transcript');
+      transcriptWrapper = container.querySelector(
+        '.reduct-plugin-transcript-wrapper'
+      );
+
+      words = container.querySelectorAll(`.reduct-plugin-transcript-word`);
+
+      transcriptWrapper.style.height = transcriptHeight;
+      container.style.borderRadius = borderRadius;
+    } else {
+      video = document.getElementById(`reduct-video_${id}`);
+      scrollToPayloadButton = document.getElementById(
+        `reduct-video-scroll-button_${id}`
+      );
+      container = document.getElementById(`reduct-video-container_${id}`);
+      tooltip = document.getElementById(`reduct-video-info-tooltip_${id}`);
+      transcriptEle = document.getElementById(`transcript_${id}`);
+      words = document.querySelectorAll(`.transcript-word_${id}`);
+    }
 
     async function loadVideo() {
       const manifest = JSON.parse(stringifiedManifest);
@@ -65,6 +86,7 @@
       const url = `${siteUrl}/?rest_route=/reduct-plugin/v1/video/${
         transcriptUrl.split('/e/')[1]
       }`;
+
       Reduct.getSharePlayerFromManifest(video, manifest, url);
     }
 
@@ -74,8 +96,6 @@
     if (!transcriptEle) {
       return;
     }
-
-    const words = container.querySelectorAll(`.reduct-plugin-transcript-word`);
 
     transcriptEle.addEventListener('click', (e) => {
       const element = e.target;
@@ -201,7 +221,7 @@
     video.addEventListener('pause', toggleTranscriptExpansion);
 
     container.addEventListener('click', hideTooltipFn);
-    expandButton.addEventListener('click', togglePlayPause);
+    expandButton && expandButton.addEventListener('click', togglePlayPause);
   }
 
   if (!window.Reduct) {
@@ -213,5 +233,5 @@
     await waitForScriptLoad();
   }
 
-  window.addEventListener('load', loadTranscriptEvent);
+  loadTranscriptEvent();
 })();
