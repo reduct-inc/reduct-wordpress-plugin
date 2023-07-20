@@ -217,7 +217,14 @@
       }, 4000);
     };
 
-    video.addEventListener('play', toggleTranscriptExpansion);
+    video.addEventListener('play', () => {
+      toggleTranscriptExpansion();
+      const currentWord = getCurrentWord();
+
+      if (!isInViewport(currentWord, transcriptEle)) {
+        scrollToPayloadButton.style.display = 'block';
+      }
+    });
     video.addEventListener('pause', () => {
       toggleTranscriptExpansion();
       scrollToPayloadButton.style.display = 'none';
