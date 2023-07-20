@@ -25,6 +25,9 @@
     "build/index.asset.php",
     "build/elementorWidget.js",
     "reduct-video-plugin.php",
+    "src/base-style.css",
+    "src/reelDOM.js",
+    "src/videoLoadScript.js",
     "template.php",
     "widget/reduct-embed-elementor-widget.php"
   ],
