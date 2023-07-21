@@ -201,14 +201,30 @@
       const heightValue = parseInt(height);
 
       if (heightValue <= transcriptHeightValue) {
-        transcriptWrapper.style.height = `${transcriptHeightValue + 80}px`;
-        expandButton.style.transform = 'rotate(180deg)';
+        transcriptWrapper.style.setProperty(
+          'height',
+          `${transcriptHeightValue + 80}px`,
+          'important'
+        );
+        expandButton.style.setProperty(
+          'transform',
+          'rotate(180deg)',
+          'important'
+        );
         return;
       }
 
       if (video.paused) {
-        expandButton.style.transform = 'rotate(0deg)';
-        transcriptWrapper.style.height = transcriptHeight;
+        transcriptWrapper.style.setProperty(
+          'height',
+          transcriptHeight,
+          'important'
+        );
+        expandButton.style.setProperty(
+          'transform',
+          'rotate(0deg)',
+          'important'
+        );
       }
     };
 
