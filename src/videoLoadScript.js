@@ -206,8 +206,10 @@
         return;
       }
 
-      transcriptWrapper.style.height = transcriptHeight;
-      expandButton.style.transform = 'rotate(0deg)';
+      if (video.paused) {
+        expandButton.style.transform = 'rotate(0deg)';
+        transcriptWrapper.style.height = transcriptHeight;
+      }
     };
 
     const hideTooltipFn = () => {
@@ -225,7 +227,11 @@
         scrollToPayloadButton.style.display = 'block';
       }
     });
+
     video.addEventListener('pause', () => {
+      // if the pause event is fired from video seek ignore it
+      if (video.readyState !== 4) return;
+
       toggleTranscriptExpansion();
       scrollToPayloadButton.style.display = 'none';
     });
