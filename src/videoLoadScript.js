@@ -78,6 +78,11 @@
       tooltip = document.getElementById(`reduct-video-info-tooltip_${id}`);
       transcriptEle = document.getElementById(`transcript_${id}`);
       words = document.querySelectorAll(`.transcript-word_${id}`);
+
+      // older versions dont have height value so take default transcript height
+      // also attach transition animation to height change
+      transcriptEle.style.height = transcriptHeight;
+      transcriptEle.style.setProperty('transition', 'height 0.5s linear');
     }
 
     async function loadVideo() {
@@ -196,30 +201,37 @@
     };
 
     const toggleTranscriptExpansion = () => {
-      const transcriptContainerStyle = getComputedStyle(transcriptWrapper);
+      const wrapper = transcriptWrapper || transcriptEle;
+
+      const transcriptContainerStyle =
+        getComputedStyle(wrapper)?.style || wrapper.style;
+
       const height = transcriptContainerStyle.height;
-      const heightValue = Math.max(
-        parseInt(height),
-        parseInt(transcriptWrapper.style.height)
-      );
+
+      const heightValue = parseInt(height);
 
       if (heightValue <= transcriptHeightValue) {
-        transcriptWrapper.style.setProperty(
+        wrapper.style.setProperty(
           'height',
           `${transcriptHeightValue + 80}px`,
           'important'
         );
-        expandButton.style.setProperty(
-          'transform',
-          'rotate(180deg)',
-          'important'
-        );
+
+        if (expandButton) {
+          expandButton.style.setProperty(
+            'transform',
+            'rotate(180deg)',
+            'important'
+          );
+        }
         return;
       }
 
       if (video.paused) {
-        transcriptWrapper.style.setProperty('height', transcriptHeight);
-        expandButton.style.setProperty('transform', 'rotate(0deg)');
+        wrapper.style.setProperty('height', transcriptHeight);
+        if (expandButton) {
+          expandButton.style.setProperty('transform', 'rotate(0deg)');
+        }
       }
     };
 
