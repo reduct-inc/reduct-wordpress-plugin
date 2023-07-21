@@ -198,7 +198,10 @@
     const toggleTranscriptExpansion = () => {
       const transcriptContainerStyle = getComputedStyle(transcriptWrapper);
       const height = transcriptContainerStyle.height;
-      const heightValue = parseInt(height);
+      const heightValue = Math.max(
+        parseInt(height),
+        parseInt(transcriptWrapper.style.height)
+      );
 
       if (heightValue <= transcriptHeightValue) {
         transcriptWrapper.style.setProperty(
@@ -215,16 +218,8 @@
       }
 
       if (video.paused) {
-        transcriptWrapper.style.setProperty(
-          'height',
-          transcriptHeight,
-          'important'
-        );
-        expandButton.style.setProperty(
-          'transform',
-          'rotate(0deg)',
-          'important'
-        );
+        transcriptWrapper.style.setProperty('height', transcriptHeight);
+        expandButton.style.setProperty('transform', 'rotate(0deg)');
       }
     };
 
