@@ -55,11 +55,58 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 			[
 				'label' => esc_html__('URL to embed', 'reduct-embed-elementor'),
 				'type' => \Elementor\Controls_Manager::TEXT,
-				'input_type' => 'url',
 				'placeholder' => esc_html__('https://reel-link.com', 'reduct-embed-elementor'),
+
 			]
 		);
 
+		$this->add_control(
+			'transcriptHeight',
+			[
+				'label' => esc_html__('Transcript Height (px):', 'reduct-embed-elementor'),
+				'type' => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px'],
+				'step' => 1,
+				'range' => [
+					'px' => [
+						'min' => 160,
+						'max' => 400,
+						'step' => 1,
+					],
+				],
+				'default' => [
+					'unit' => 'px',
+					'size' => 160,
+				],
+				'selectors' => [
+					'{{WRAPPER}} .reduct-plugin-transcript-wrapper' => 'height: {{SIZE}}{{UNIT}} !important;',
+				],
+			]
+		);
+
+		$this->add_control(
+			'borderRadius',
+			[
+				'label' => esc_html__('Border Radius (px):', 'reduct-embed-elementor'),
+				'type' => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => ['px'],
+				'step' => 1,
+				'range' => [
+					'px' => [
+						'min' => 0,
+						'max' => 40,
+						'step' => 1,
+					],
+				],
+				'default' => [
+					'unit' => 'px',
+					'size' => 22,
+				],
+				'selectors' => [
+					'{{WRAPPER}} .reduct-plugin-container' => 'border-radius: {{SIZE}}px !important;',
+				],
+			]
+		);
 
 		$this->add_control(
 			'reductDomElement',
@@ -77,7 +124,16 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 				'label' => esc_html__('Unique ID', 'reduct-embed-elementor'),
 				'type' => \Elementor\Controls_Manager::HIDDEN,
 				"input_type" => "text",
+			]
+		);
 
+		$this->add_control(
+			'highlightColor',
+			[
+				'label' => esc_html__('Highlight Color', 'reduct-embed-elementor'),
+				'type' => \Elementor\Controls_Manager::HIDDEN,
+				"input_type" => "text",
+				'default' => '#FCA59C',
 			]
 		);
 
@@ -99,7 +155,42 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 	{
 		$settings = $this->get_settings_for_display();
 
-		$attributes = array("url" => $settings['url'], "domElement" => $settings['reductDomElement'], "uniqueId" => $settings["uniqueId"]);
+		$attributes = array("url" => $settings['url'], "domElement" => $settings['reductDomElement'], "uniqueId" => $settings["uniqueId"], "transcriptHeight" => $settings["transcriptHeight"], "highlightColor" => $settings["highlightColor"], "borderRadius" => $settings["borderRadius"]);
+
+		$highlightColor = $attributes["highlightColor"];
+		$transcriptHeight = $attributes["transcriptHeight"];
+
+		// adding "/" if url is missing it
+		$base_url = $attributes["url"];
+		$domElement = $attributes["domElement"];
+		$borderRadius = $attributes["borderRadius"];
+		$id = $attributes["uniqueId"];
+
+
+		$site_url = get_site_url();
+
+		if (!str_ends_with($attributes["url"], "/")) {
+			$base_url = $attributes["url"] . "/";
+		}
+
+		$manifest = file_get_contents($base_url . "burn?type=json");
+		?>
+		<script>
+			(function () {
+				const WP_PROPS = {
+					id: "<?php echo $id ?>",
+					site_url: "<?php echo $site_url ?>",
+					stringifiedManifest: `<?php echo $manifest ?>`,
+					transcriptHeight: `<?php echo $transcriptHeight["size"] . $transcriptHeight["unit"] ?>`,
+					highlightColor: `<?php echo $highlightColor ?>`,
+					transcriptUrl: `<?php echo $base_url ?>`,
+					borderRadius: `<?php echo strval($borderRadius) . "px" ?>`
+				};
+
+				<?php echo file_get_contents(dirname(__FILE__) . "/../src/videoLoadScript.js") ?>
+			})();
+		</script>
+		<?php
 		require dirname(__FILE__) . "/../template.php";
 	}
 

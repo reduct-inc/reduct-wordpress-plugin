@@ -1,0 +1,119 @@
+.reduct-plugin-input-field {
+  margin: 16px 0px;
+}
+
+.reduct-plugin-number-input::-webkit-outer-spin-button,
+.reduct-plugin-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.reduct-plugin-number-input {
+  -moz-appearance: textfield;
+  display: block;
+  width: 100%;
+  margin: 8px auto;
+  border: 0.5px solid #a9a9a9;
+  outline: none;
+}
+
+.reduct-plugin-slider-input {
+  width: 100%;
+  cursor: pointer;
+  background: transparent;
+}
+
+.reduct-plugin-container {
+  min-width: 320px;
+  display: flex;
+  border-radius: 22px;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 0.438rem 0.938rem rgb(0 0 0 / 10%);
+}
+
+.reduct-plugin-video {
+  width: 100%;
+  cursor: pointer;
+}
+
+.reduct-plugin-transcript {
+  background-color: white;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+.reduct-plugin-transcript-wrapper {
+  position: relative;
+  background-color: white;
+  font-size: 16px;
+  padding: 20px;
+  font-family: sans-serif;
+  transition: height 0.5s linear;
+  box-sizing: border-box;
+}
+
+.reduct-plugin-transcript-speaker {
+  font-size: 12px;
+  color: #b3b3b3;
+  margin-bottom: 3px;
+}
+
+.reduct-plugin-transcript-word {
+  cursor: pointer;
+  padding: 2px;
+}
+
+.reduct-plugin-transcript-paragraph {
+  margin-bottom: 10px;
+}
+
+.reduct-plugin-scroll-button {
+  font-size: 12px;
+  position: absolute;
+  z-index: 10;
+  bottom: 24px;
+  left: calc(50% - 80px);
+  display: none;
+  background-color: #353535 !important;
+  color: white !important;
+  border: none;
+  padding: 8px 12px;
+}
+
+.reduct-plugin-scroll-button:hover {
+  border: none;
+  transform: scale(1.02);
+  box-shadow: 4px 4px 4px rgba(53, 53, 53, 0.22);
+}
+
+.reduct-plugin-info-tooltip {
+  top: -16px;
+  left: 0;
+  padding: 4px 0px;
+  background: #353535;
+  font-style: italic;
+  color: white;
+  font-size: 16px;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+}
+
+.reduct-plugin-expand-btn {
+  position: absolute;
+  padding: 0px;
+  top: 24px;
+  right: 16px;
+  background: none;
+  outline: none;
+  color: black;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.1s ease-in;
+}

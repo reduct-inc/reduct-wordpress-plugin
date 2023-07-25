@@ -7,7 +7,13 @@ import { fetchTranscript } from './utils';
     elementor.channels.editor.on('embedReductReelsButtonEvent', async (e) => {
       const parentNode = e.$el[0].parentNode;
 
-      const url = parentNode.querySelector('input').value;
+      const inputs = parentNode.querySelectorAll('input');
+
+      const [urlInput, transcriptHeightInput, borderRadiusInput] = inputs;
+
+      const url = urlInput.value;
+      const transcriptHeight = transcriptHeightInput.value;
+      const borderRadius = borderRadiusInput.value;
 
       const hiddenDOM = parentNode.querySelector(
         '[data-setting=reductDomElement]'
@@ -21,11 +27,13 @@ import { fetchTranscript } from './utils';
 
       const transcript = await fetchTranscript(WP_PROPS.site_url, url);
 
-      const DOMElement = generateDomFromTranscript(
+      const DOMElement = generateDomFromTranscript({
         transcript,
-        uniqueIdDOM.value,
-        url
-      );
+        uniqueId: uniqueIdDOM.value,
+        url,
+        transcriptHeight,
+        borderRadius,
+      });
 
       hiddenDOM.value = DOMElement;
       const inputEvent = new Event('input', { bubbles: true });

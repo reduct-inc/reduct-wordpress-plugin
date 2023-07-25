@@ -2,7 +2,7 @@
 /*
 Plugin name: Reduct Video Plugin
 Description: Plugin to add reduct video shared video to any WP site
-Version: 1.3.0
+Version: 2.0.0
 Author: Reduct Video
 */
 
@@ -42,6 +42,8 @@ class Plugin
 
         wp_localize_script('blockType', 'WP_PROPS', array('site_url' => get_site_url()));
 
+        wp_enqueue_style('blockType', plugin_dir_url(__FILE__) . 'src/base-style.css', null, 1.0);
+
         // first param -> same as name described in js
         register_block_type("reduct-plugin/configs", array('editor_script' => 'blockType', 'render_callback' => array($this, 'frontendHTML')));
     }
@@ -49,8 +51,48 @@ class Plugin
     // attributes are coming from js as params
     function frontendHTML($attributes)
     {
+        $highlightColor = isset($attributes["highlightColor"]) ? $attributes["highlightColor"] : '#FCA59C';
+        $transcriptHeight = isset($attributes["transcriptHeight"]) ? $attributes["transcriptHeight"] : "160px";
+        $borderRadius = isset($attributes["borderRadius"]) ? $attributes["borderRadius"] : "5px";
+
+        // adding "/" if url is missing it
+        $base_url = $attributes["url"];
+        $domElement = $attributes["domElement"];
+        $id = $attributes["uniqueId"];
+
+
+        $site_url = get_site_url();
+
+        if (!str_ends_with($attributes["url"], "/")) {
+            $base_url = $attributes["url"] . "/";
+        }
+
+        $manifest = file_get_contents($base_url . "burn?type=json");
+
+        $segments = array();
+
+        // wp_enqueue_script('video-load-script', plugin_dir_url(__FILE__) . 'src/videoLoadScript.js', null, '1.0', true);
+        wp_localize_script('video-load-script', 'WP_PROPS', array('highlightColor' => $highlightColor, "transcriptHeight" => $transcriptHeight, "site_url" => get_site_url(), "id" => $id, "stringifiedManifest" => $manifest, "transcriptUrl" => $base_url, "attributes" => $attributes, "borderRadius" => $borderRadius));
+        $script = file_get_contents(dirname(__FILE__) . "/src/videoLoadScript.js");
+
         ob_start();
         include __DIR__ . "/template.php";
+        ?>
+        <script>
+            (function () {
+                const WP_PROPS = {
+                    id: "<?php echo $id ?>",
+                    site_url: "<?php echo $site_url ?>",
+                    stringifiedManifest: `<?php echo $manifest ?>`,
+                    transcriptHeight: `<?php echo $transcriptHeight ?>`,
+                    highlightColor: `<?php echo $highlightColor ?>`,
+                    transcriptUrl: `<?php echo $base_url ?>`,
+                    borderRadius: `<?php echo strval($borderRadius) . "px" ?>`
+                };
+                <?php echo $script; ?>
+            })()
+        </script>
+        <?php
         $output = ob_get_clean();
         return $output;
     }
@@ -80,6 +122,8 @@ class Plugin
         );
 
         wp_localize_script('elementorWidget', 'WP_PROPS', array('site_url' => get_site_url()));
+
+        wp_enqueue_style('elementorWidget', plugin_dir_url(__FILE__) . 'src/base-style.css', null, 1.0);
     }
 
     function transcript_route($request)

@@ -1,6 +1,10 @@
 // dependency added from the php wp
-import { useState } from '@wordpress/element';
-import { Modal } from '@wordpress/components';
+import { useState, useRef, useEffect } from '@wordpress/element';
+import { Modal, RangeControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+
+import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
+
 import IconImg from './icon.svg';
 import generateDomFromTranscript from './reelDOM';
 import { fetchTranscript } from './utils';
@@ -15,6 +19,9 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
     url: { type: 'string' },
     domElement: { type: 'string' },
     uniqueId: { type: 'string' },
+    transcriptHeight: { type: 'string' },
+    borderRadius: { type: 'string' },
+    highlightColor: { type: 'string' },
   },
 
   // what is seen in admin post editor screen
@@ -26,13 +33,22 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
     const [errorMsg, setErrorMsg] = useState('');
     const [isOpen, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
+
+    const [config, setConfig] = useState({
+      transcriptHeight: props.attributes.transcriptHeight || '160px',
+      borderRadius: props.attributes.borderRadius || '22px',
+      highlightColor: props.attributes.highlightColor || '#FCA59C',
+    });
+
     const [previewElement, setPreviewElement] = useState(
-      props.attributes.domElement || null
+      props.attributes.domElement || ''
     );
+
+    const domElementRef = useRef(null);
 
     const openModal = () => setOpen(true);
     const closeModal = () => setOpen(false);
-    
+
     async function updateUrl() {
       try {
         setErrorMsg('');
@@ -45,12 +61,14 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
         const siteUrl = WP_PROPS.site_url;
 
         const transcript = await fetchTranscript(siteUrl, url);
-        const domElement = generateDomFromTranscript(transcript, uniqueId, url);
+        const domElement = generateDomFromTranscript({
+          transcript,
+          uniqueId,
+          url,
+          ...config,
+        });
 
-        props.setAttributes({ url });
-        props.setAttributes({ domElement });
-        props.setAttributes({ uniqueId });
-
+        props.setAttributes({ url, domElement, uniqueId });
         setPreviewElement(domElement);
         openModal();
       } catch (e) {
@@ -60,8 +78,33 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
       }
     }
 
+    useEffect(() => {
+      const container = document.getElementById(
+        `reduct-plugin-video-${uniqueId}`
+      );
+
+      // if there is no dom preview for the element, ignore change in config
+      if (!container || !domElementRef.current) return;
+
+      const transcript_container = container.querySelector(
+        `.reduct-plugin-transcript-wrapper`
+      );
+
+      const { transcriptHeight, borderRadius, highlightColor } = config;
+
+      container.style.borderRadius = borderRadius;
+      transcript_container.style.height = transcriptHeight;
+
+      props.setAttributes({
+        domElement: domElementRef.current.innerHTML,
+        transcriptHeight,
+        borderRadius,
+        highlightColor,
+      });
+    }, [config, uniqueId]);
+
     return (
-      <div style={{ padding: '20px' }}>
+      <div {...useBlockProps()} style={{ padding: '20px' }}>
         <h5>Embed Reduct Video</h5>
         <p>Paste the shared URL</p>
         <div style={{ display: 'flex', width: '100%' }}>
@@ -91,6 +134,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
         </div>
         <div
           dangerouslySetInnerHTML={{ __html: previewElement }}
+          ref={domElementRef}
           style={{ marginTop: '20px', float: 'none' }}></div>
         {errorMsg ? (
           <div style={{ fontSize: '16px', color: 'rgb(236, 83, 65)' }}>
@@ -104,6 +148,41 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
             <p>{'Saved'}</p>
           </Modal>
         )}
+
+        <InspectorControls key='setting'>
+          <div
+            id='gutenpride-controls'
+            style={{ fontSize: '16px', padding: '0px 16px' }}>
+            <fieldset className='reduct-plugin-input-field'>
+              <RangeControl
+                label='Transcript Height (px):'
+                value={parseInt(config.transcriptHeight)}
+                onChange={(value) =>
+                  setConfig({
+                    ...config,
+                    transcriptHeight: `${value}px`,
+                  })
+                }
+                min={160}
+                max={400}
+              />
+            </fieldset>
+            <fieldset className='reduct-plugin-input-field'>
+              <RangeControl
+                label='Border Radius (px):'
+                value={parseInt(config.borderRadius)}
+                onChange={(value) =>
+                  setConfig({
+                    ...config,
+                    borderRadius: `${value}px`,
+                  })
+                }
+                min={0}
+                max={40}
+              />
+            </fieldset>
+          </div>
+        </InspectorControls>
       </div>
     );
   },
