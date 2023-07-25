@@ -2,7 +2,7 @@
 /*
 Plugin name: Reduct Video Plugin
 Description: Plugin to add reduct video shared video to any WP site
-Version: 1.3.0
+Version: 2.0.0
 Author: Reduct Video
 */
 
