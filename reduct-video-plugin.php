@@ -2,7 +2,7 @@
 /*
 Plugin name: Reduct Video Plugin
 Description: Plugin to add reduct video shared video to any WP site
-Version: 2.0.0
+Version: 2.0.1
 Author: Reduct Video
 */
 
@@ -71,28 +71,10 @@ class Plugin
 
         $segments = array();
 
-        // wp_enqueue_script('video-load-script', plugin_dir_url(__FILE__) . 'src/videoLoadScript.js', null, '1.0', true);
         wp_localize_script('video-load-script', 'WP_PROPS', array('highlightColor' => $highlightColor, "transcriptHeight" => $transcriptHeight, "site_url" => get_site_url(), "id" => $id, "stringifiedManifest" => $manifest, "transcriptUrl" => $base_url, "attributes" => $attributes, "borderRadius" => $borderRadius));
-        $script = file_get_contents(dirname(__FILE__) . "/src/videoLoadScript.js");
 
         ob_start();
         include __DIR__ . "/template.php";
-        ?>
-        <script>
-            (function () {
-                const WP_PROPS = {
-                    id: "<?php echo $id ?>",
-                    site_url: "<?php echo $site_url ?>",
-                    stringifiedManifest: `<?php echo $manifest ?>`,
-                    transcriptHeight: `<?php echo $transcriptHeight ?>`,
-                    highlightColor: `<?php echo $highlightColor ?>`,
-                    transcriptUrl: `<?php echo $base_url ?>`,
-                    borderRadius: `<?php echo strval($borderRadius) . "px" ?>`
-                };
-                <?php echo $script; ?>
-            })()
-        </script>
-        <?php
         $output = ob_get_clean();
         return $output;
     }
