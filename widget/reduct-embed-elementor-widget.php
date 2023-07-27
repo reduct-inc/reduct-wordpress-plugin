@@ -8,10 +8,10 @@ Author: Reduct Video
 if (!defined('ABSPATH')) // exit if try to access from the browser directly
 	exit;
 
-
-// Enqueue custom JavaScript file
-
-
+function combineSizeAndUnit($arr)
+{
+	return $arr["size"] . $arr["unit"];
+}
 
 class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 {
@@ -155,42 +155,22 @@ class Elementor_Reduct_Reel_Embed_Widget extends \Elementor\Widget_Base
 	{
 		$settings = $this->get_settings_for_display();
 
-		$attributes = array("url" => $settings['url'], "domElement" => $settings['reductDomElement'], "uniqueId" => $settings["uniqueId"], "transcriptHeight" => $settings["transcriptHeight"], "highlightColor" => $settings["highlightColor"], "borderRadius" => $settings["borderRadius"]);
+		$highlightColor = $settings["highlightColor"];
+		$transcriptHeight = combineSizeAndUnit($settings["transcriptHeight"]);
+		$borderRadius = combineSizeAndUnit($settings["borderRadius"]);
 
-		$highlightColor = $attributes["highlightColor"];
-		$transcriptHeight = $attributes["transcriptHeight"];
-
-		// adding "/" if url is missing it
-		$base_url = $attributes["url"];
-		$domElement = $attributes["domElement"];
-		$borderRadius = $attributes["borderRadius"];
-		$id = $attributes["uniqueId"];
-
+		$base_url = $settings['url'];
+		$domElement = $settings['reductDomElement'];
+		$id = $settings["uniqueId"];
 
 		$site_url = get_site_url();
 
-		if (!str_ends_with($attributes["url"], "/")) {
-			$base_url = $attributes["url"] . "/";
+		// adding "/" if url is missing it
+		if (!str_ends_with($settings['url'], "/")) {
+			$base_url = $settings['url'] . "/";
 		}
 
 		$manifest = file_get_contents($base_url . "burn?type=json");
-		?>
-		<script>
-			(function () {
-				const WP_PROPS = {
-					id: "<?php echo $id ?>",
-					site_url: "<?php echo $site_url ?>",
-					stringifiedManifest: `<?php echo $manifest ?>`,
-					transcriptHeight: `<?php echo $transcriptHeight["size"] . $transcriptHeight["unit"] ?>`,
-					highlightColor: `<?php echo $highlightColor ?>`,
-					transcriptUrl: `<?php echo $base_url ?>`,
-					borderRadius: `<?php echo strval($borderRadius) . "px" ?>`
-				};
-
-				<?php echo file_get_contents(dirname(__FILE__) . "/../src/videoLoadScript.js") ?>
-			})();
-		</script>
-		<?php
 		require dirname(__FILE__) . "/../template.php";
 	}
 
