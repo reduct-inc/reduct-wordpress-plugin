@@ -7,4 +7,18 @@ async function fetchTranscript(siteUrl, url) {
   return transcript;
 }
 
-export { fetchTranscript };
+function transcriptToText(json) {
+  let text = '';
+  const segments = json.segments;
+
+  for (let paragraph of segments) {
+    const { wdlist } = paragraph;
+    wdlist.forEach((wd) => {
+      text += wd.word;
+    });
+  }
+
+  return text;
+}
+
+export { fetchTranscript, transcriptToText };
