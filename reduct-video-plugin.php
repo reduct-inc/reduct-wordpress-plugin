@@ -59,7 +59,7 @@ class Plugin
 
         $highlightColor = isset($attributes["highlightColor"]) ? $attributes["highlightColor"] : '#FCA59C';
         $transcriptHeight = isset($attributes["transcriptHeight"]) ? $attributes["transcriptHeight"] : "160px";
-        $borderRadius = isset($attributes["borderRadius"]) ? $attributes["borderRadius"] : "5px";
+        $borderRadius = isset($attributes["borderRadius"]) ? $attributes["borderRadius"] : "22px";
         $base_url = $attributes["url"];
 
         if (isset($attributes["reelId"]) && isset($attributes["transcript"])) {
