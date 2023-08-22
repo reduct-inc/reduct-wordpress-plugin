@@ -1,7 +1,6 @@
 // dependency added from the php wp
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { Modal, RangeControl } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
@@ -43,8 +42,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
 
     const siteUrl = WP_PROPS.site_url;
 
-    async function fetchDOMElement() {
-      if (!reelId) return;
+    async function fetchDOMElement(reelId) {
       const element = await fetch(
         `${siteUrl}/wp-json/reduct-plugin/v1/element?id=${reelId}`
       );
@@ -74,7 +72,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
           domElement: '',
           uniqueId: '',
         });
-        await fetchDOMElement();
+        await fetchDOMElement(reelId);
         openModal();
       } catch (e) {
         setErrorMsg(e.message || 'Error saving.');
@@ -84,7 +82,8 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
     }
 
     useEffect(() => {
-      fetchDOMElement();
+      if (!reelId) return;
+      fetchDOMElement(reelId);
     }, []);
 
     useEffect(() => {
@@ -132,7 +131,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
         {/* uniqueId is only present in older versions */}
         {uniqueId && (
           <div style={{ color: 'red' }}>
-            To access new features, embed and refresh the page.
+            To access new features, embed, update and refresh the page.
           </div>
         )}
         <div
