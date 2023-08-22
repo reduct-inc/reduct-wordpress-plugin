@@ -57,19 +57,16 @@ class Plugin
             return;
         }
 
-        // disallow running when request has POST method
-        if ( 'POST' == filter_input( INPUT_SERVER, 'REQUEST_METHOD', FILTER_SANITIZE_STRING ) ) {
-            return;
-        }
-
         $highlightColor = isset($attributes["highlightColor"]) ? $attributes["highlightColor"] : '#FCA59C';
         $transcriptHeight = isset($attributes["transcriptHeight"]) ? $attributes["transcriptHeight"] : "160px";
         $borderRadius = isset($attributes["borderRadius"]) ? $attributes["borderRadius"] : "5px";
         $base_url = $attributes["url"];
 
         if (isset($attributes["reelId"]) && isset($attributes["transcript"])) {
+            ob_start();
             echo generate_template(reelId: $attributes["reelId"], transcriptHeight: $transcriptHeight, borderRadius: $borderRadius, highlightColor: $highlightColor);
-            return;
+            $output = ob_get_clean();
+            return $output;
         }
 
         // add support for legacy version
@@ -161,7 +158,7 @@ class Plugin
             $borderRadius = isset($urlContents["borderRadius"]) ? $urlContents["borderRadius"] : "22px";
             $highlightColor = isset($urlContents["highlightColor"]) ? $urlContents["highlightColor"] : '#FCA59C';
 
-            
+
             $template = generate_template(reelId: $reelId, transcriptHeight: $height, borderRadius: $borderRadius, highlightColor: $highlightColor);
 
             header('Content-Type: text/html; charset=UTF-8');
