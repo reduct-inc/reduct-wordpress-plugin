@@ -103,7 +103,12 @@
 
     transcriptEle.addEventListener('click', (e) => {
       const element = e.target;
-      if (element.classList.contains(`reduct-plugin-transcript-word`)) {
+
+      const hasClickedWord =
+        element.classList.contains(`reduct-plugin-transcript-word`) ||
+        element.classList.contains(`transcript-word_${id}`);
+
+      if (hasClickedWord) {
         const startTime = element.getAttribute('data-start');
         if (startTime) {
           video.currentTime = parseFloat(startTime);
