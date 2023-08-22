@@ -24,6 +24,7 @@
     "build/index.js",
     "build/index.asset.php",
     "build/elementorWidget.js",
+    "gutenberg-template.php",
     "reduct-video-plugin.php",
     "src/base-style.css",
     "src/reelDOM.js",
