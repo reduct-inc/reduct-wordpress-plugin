@@ -53,7 +53,7 @@ class Plugin
     function frontendHTML($attributes)
     {
         // disallow on admin screen
-        if (is_admin()) {
+        if (is_admin() || empty($attributes)) {
             return;
         }
 
