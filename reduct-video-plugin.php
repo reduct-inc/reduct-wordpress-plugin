@@ -27,8 +27,39 @@ class Plugin
             $this->load_elementor_widget();
         }
 
+        if (is_plugin_installed_and_active('searchwp/index.php')) {
+            $this->load_searchwp_config();
+        }
+
         // register routes
         add_action('rest_api_init', array($this, 'rest_api_routes'));
+    }
+
+    function load_searchwp_config()
+    {
+        add_filter('searchwp\source\post\attributes\content', function ($content, $args) {
+            $post_content = $args['post']->post_content;
+
+            if (strpos($post_content, 'wp:reduct-plugin/configs')) {
+                $pattern = '/<!-- wp:reduct-plugin\/configs (.*?)\/-->/s';
+                preg_match_all($pattern, $post_content, $matches);
+
+                $contentArrays = $matches[1];
+
+                foreach ($contentArrays as $contentArray) {
+                    $config = json_decode(trim($contentArray), true);
+                    if ($config !== null) {
+
+                        if (isset($config['reelId'])) {
+                            print_r($config);
+                            $content .= $config['transcript'];
+                        }
+                    }
+                }
+            }
+
+            return $content;
+        }, 20, 2);
     }
 
     function load_gutenberg_block()
