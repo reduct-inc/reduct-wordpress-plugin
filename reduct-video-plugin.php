@@ -2,7 +2,7 @@
 /*
 Plugin name: Reduct Video Plugin
 Description: Plugin to add reduct video shared video to any WP site
-Version: 2.0.1
+Version: 2.1.0
 Author: Reduct Video
 */
 
@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) // exit if try to access from the browser directly
     exit;
 
 define("VIDEO_RESOURCE_URL", "https://app.reduct.video/e/");
+include __DIR__ . "/gutenberg-template.php";
 
 function is_plugin_installed_and_active($plugin)
 {
@@ -21,13 +22,44 @@ class Plugin
     function __construct()
     {
         add_action('init', array($this, 'load_gutenberg_block'));
-        
+
         if (is_plugin_installed_and_active('elementor/elementor.php')) {
             $this->load_elementor_widget();
         }
 
+        if (is_plugin_installed_and_active('searchwp/index.php')) {
+            $this->load_searchwp_config();
+        }
+
         // register routes
         add_action('rest_api_init', array($this, 'rest_api_routes'));
+    }
+
+    function load_searchwp_config()
+    {
+        add_filter('searchwp\source\post\attributes\content', function ($content, $args) {
+            $post_content = $args['post']->post_content;
+
+            if (strpos($post_content, 'wp:reduct-plugin/configs')) {
+                $pattern = '/<!-- wp:reduct-plugin\/configs (.*?)\/-->/s';
+                preg_match_all($pattern, $post_content, $matches);
+
+                $contentArrays = $matches[1];
+
+                foreach ($contentArrays as $contentArray) {
+                    $config = json_decode(trim($contentArray), true);
+                    if ($config !== null) {
+
+                        if (isset($config['reelId'])) {
+                            print_r($config);
+                            $content .= $config['transcript'];
+                        }
+                    }
+                }
+            }
+
+            return $content;
+        }, 20, 2);
     }
 
     function load_gutenberg_block()
@@ -51,16 +83,26 @@ class Plugin
     // attributes are coming from js as params
     function frontendHTML($attributes)
     {
+        // disallow on admin screen
+        if (is_admin() || empty($attributes)) {
+            return;
+        }
+
         $highlightColor = isset($attributes["highlightColor"]) ? $attributes["highlightColor"] : '#FCA59C';
         $transcriptHeight = isset($attributes["transcriptHeight"]) ? $attributes["transcriptHeight"] : "160px";
-        $borderRadius = isset($attributes["borderRadius"]) ? $attributes["borderRadius"] : "5px";
-
-        // adding "/" if url is missing it
+        $borderRadius = isset($attributes["borderRadius"]) ? $attributes["borderRadius"] : "22px";
         $base_url = $attributes["url"];
-        $domElement = $attributes["domElement"];
+
+        if (isset($attributes["reelId"]) && isset($attributes["transcript"])) {
+            ob_start();
+            echo generate_template(reelId: $attributes["reelId"], transcriptHeight: $transcriptHeight, borderRadius: $borderRadius, highlightColor: $highlightColor);
+            $output = ob_get_clean();
+            return $output;
+        }
+
+        // add support for legacy version
         $id = $attributes["uniqueId"];
-
-
+        $domElement = $attributes["domElement"];
         $site_url = get_site_url();
 
         if (!str_ends_with($attributes["url"], "/")) {
@@ -118,7 +160,8 @@ class Plugin
 
         $path = VIDEO_RESOURCE_URL . $id . "/transcript.json";
 
-        $transcript_data = file_get_contents($path);
+        // supress error with @
+        $transcript_data = @file_get_contents($path, null, );
 
         if ($transcript_data == false) {
             $response->set_data('not-found');
@@ -128,6 +171,36 @@ class Plugin
 
         $response->set_data($transcript_data);
         return $response;
+    }
+
+    function element_route($request)
+    {
+        $response = new WP_REST_Response;
+        try {
+            $urlContents = $request->get_params();
+
+            if (!isset($urlContents["id"])) {
+                throw new Exception("Please provide valid id.");
+            }
+
+            $reelId = $urlContents["id"];
+
+            $height = isset($urlContents["height"]) ? $urlContents["height"] : "160px";
+            $borderRadius = isset($urlContents["borderRadius"]) ? $urlContents["borderRadius"] : "22px";
+            $highlightColor = isset($urlContents["highlightColor"]) ? $urlContents["highlightColor"] : '#FCA59C';
+
+
+            $template = generate_template(reelId: $reelId, transcriptHeight: $height, borderRadius: $borderRadius, highlightColor: $highlightColor);
+
+            header('Content-Type: text/html; charset=UTF-8');
+
+            echo $template;
+            die();
+        } catch (Exception $e) {
+            $response->set_data($e->getMessage());
+            $response->set_status(500);
+            return $response;
+        }
     }
 
 
@@ -218,6 +291,16 @@ class Plugin
             array(
                 'methods' => WP_REST_Server::READABLE,
                 'callback' => array($this, 'transcript_route'),
+                'permission_callback' => '__return_true'
+            ),
+        );
+
+        register_rest_route(
+            $prefix_url,
+            '/element',
+            array(
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => array($this, 'element_route'),
                 'permission_callback' => '__return_true'
             ),
         );

@@ -1,13 +1,11 @@
 // dependency added from the php wp
-import { useState, useRef, useEffect } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { Modal, RangeControl } from '@wordpress/components';
+import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
-import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-
 import IconImg from './icon.svg';
-import generateDomFromTranscript from './reelDOM';
-import { fetchTranscript } from './utils';
+import { fetchTranscript, transcriptToText } from './utils';
 
 const Icon = <img src={IconImg} />;
 
@@ -16,38 +14,43 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
   icon: Icon,
   category: 'common',
   attributes: {
-    url: { type: 'string' },
+    reelId: { type: 'string', default: '' },
+    url: { type: 'string', default: '' },
     domElement: { type: 'string' },
-    uniqueId: { type: 'string' },
-    transcriptHeight: { type: 'string' },
-    borderRadius: { type: 'string' },
-    highlightColor: { type: 'string' },
+    uniqueId: {
+      type: 'string',
+      default: '',
+    },
+    transcriptHeight: { type: 'string', default: '160px' },
+    borderRadius: { type: 'string', default: '22px' },
+    highlightColor: { type: 'string', default: '#FCA59C' },
+    transcript: { type: 'string', default: '' },
   },
 
-  // what is seen in admin post editor screen
-  edit: function (props) {
-    const [url, setUrl] = useState(props.attributes.url || '');
-    const [uniqueId, _] = useState(
-      props.attributes.uniqueId || Math.random().toString(36).substring(2)
-    );
-    const [errorMsg, setErrorMsg] = useState('');
+  edit: function ({
+    attributes: { url, uniqueId, transcriptHeight, borderRadius, reelId },
+    setAttributes,
+  }) {
     const [isOpen, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
-
-    const [config, setConfig] = useState({
-      transcriptHeight: props.attributes.transcriptHeight || '160px',
-      borderRadius: props.attributes.borderRadius || '22px',
-      highlightColor: props.attributes.highlightColor || '#FCA59C',
-    });
-
-    const [previewElement, setPreviewElement] = useState(
-      props.attributes.domElement || ''
-    );
-
-    const domElementRef = useRef(null);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [previewElement, setPreviewElement] = useState('');
+    const domRef = useRef();
 
     const openModal = () => setOpen(true);
     const closeModal = () => setOpen(false);
+
+    const siteUrl = WP_PROPS.site_url;
+
+    async function fetchDOMElement(reelId) {
+      const element = await fetch(
+        `${siteUrl}/wp-json/reduct-plugin/v1/element?id=${reelId}`
+      );
+
+      const domElement = await element.text();
+
+      setPreviewElement(domElement);
+    }
 
     async function updateUrl() {
       try {
@@ -58,18 +61,18 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
           return;
         }
 
-        const siteUrl = WP_PROPS.site_url;
+        const transcriptStr = await fetchTranscript(siteUrl, url);
+        const transcriptJson = JSON.parse(transcriptStr);
+        const transcriptText = transcriptToText(transcriptJson);
+        const reelId = url.split('/')[4];
 
-        const transcript = await fetchTranscript(siteUrl, url);
-        const domElement = generateDomFromTranscript({
-          transcript,
-          uniqueId,
-          url,
-          ...config,
+        setAttributes({
+          transcript: transcriptText,
+          reelId,
+          domElement: '',
+          uniqueId: '',
         });
-
-        props.setAttributes({ url, domElement, uniqueId });
-        setPreviewElement(domElement);
+        await fetchDOMElement(reelId);
         openModal();
       } catch (e) {
         setErrorMsg(e.message || 'Error saving.');
@@ -79,29 +82,22 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
     }
 
     useEffect(() => {
-      const container = document.getElementById(
-        `reduct-plugin-video-${uniqueId}`
+      if (!reelId) return;
+      fetchDOMElement(reelId);
+    }, []);
+
+    useEffect(() => {
+      if (!domRef.current || !previewElement) return;
+
+      const wrapper = domRef.current.querySelector('.reduct-plugin-container');
+
+      wrapper.style.borderRadius = borderRadius;
+
+      const transcriptWrapper = domRef.current.querySelector(
+        '.reduct-plugin-transcript-wrapper'
       );
-
-      // if there is no dom preview for the element, ignore change in config
-      if (!container || !domElementRef.current) return;
-
-      const transcript_container = container.querySelector(
-        `.reduct-plugin-transcript-wrapper`
-      );
-
-      const { transcriptHeight, borderRadius, highlightColor } = config;
-
-      container.style.borderRadius = borderRadius;
-      transcript_container.style.height = transcriptHeight;
-
-      props.setAttributes({
-        domElement: domElementRef.current.innerHTML,
-        transcriptHeight,
-        borderRadius,
-        highlightColor,
-      });
-    }, [config, uniqueId]);
+      transcriptWrapper.style.height = transcriptHeight;
+    }, [transcriptHeight, borderRadius, previewElement]);
 
     return (
       <div {...useBlockProps()} style={{ padding: '20px' }}>
@@ -111,7 +107,7 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
           <input
             type='text'
             placeholder='Enter URL to embed...'
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => setAttributes({ url: e.target.value })}
             value={url}
             style={{ flex: 1, padding: '5px 10px' }}
           />
@@ -132,9 +128,15 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
             {saving ? 'Saving' : 'Embed'}
           </button>
         </div>
+        {/* uniqueId is only present in older versions */}
+        {uniqueId && (
+          <div style={{ color: 'red' }}>
+            To access new features, embed, update and refresh the page.
+          </div>
+        )}
         <div
           dangerouslySetInnerHTML={{ __html: previewElement }}
-          ref={domElementRef}
+          ref={domRef}
           style={{ marginTop: '20px', float: 'none' }}></div>
         {errorMsg ? (
           <div style={{ fontSize: '16px', color: 'rgb(236, 83, 65)' }}>
@@ -149,44 +151,44 @@ wp.blocks.registerBlockType('reduct-plugin/configs', {
           </Modal>
         )}
 
-        <InspectorControls key='setting'>
-          <div
-            id='gutenpride-controls'
-            style={{ fontSize: '16px', padding: '0px 16px' }}>
-            <fieldset className='reduct-plugin-input-field'>
-              <RangeControl
-                label='Transcript Height (px):'
-                value={parseInt(config.transcriptHeight)}
-                onChange={(value) =>
-                  setConfig({
-                    ...config,
-                    transcriptHeight: `${value}px`,
-                  })
-                }
-                min={160}
-                max={400}
-              />
-            </fieldset>
-            <fieldset className='reduct-plugin-input-field'>
-              <RangeControl
-                label='Border Radius (px):'
-                value={parseInt(config.borderRadius)}
-                onChange={(value) =>
-                  setConfig({
-                    ...config,
-                    borderRadius: `${value}px`,
-                  })
-                }
-                min={0}
-                max={40}
-              />
-            </fieldset>
-          </div>
-        </InspectorControls>
+        {!uniqueId && (
+          <InspectorControls key='setting'>
+            <div
+              id='gutenpride-controls'
+              style={{ fontSize: '16px', padding: '0px 16px' }}>
+              <fieldset className='reduct-plugin-input-field'>
+                <RangeControl
+                  label='Transcript Height (px):'
+                  value={parseInt(transcriptHeight)}
+                  onChange={(value) =>
+                    setAttributes({
+                      transcriptHeight: `${value}px`,
+                    })
+                  }
+                  min={160}
+                  max={400}
+                />
+              </fieldset>
+              <fieldset className='reduct-plugin-input-field'>
+                <RangeControl
+                  label='Border Radius (px):'
+                  value={parseInt(borderRadius)}
+                  onChange={(value) =>
+                    setAttributes({
+                      borderRadius: `${value}px`,
+                    })
+                  }
+                  min={0}
+                  max={40}
+                />
+              </fieldset>
+            </div>
+          </InspectorControls>
+        )}
       </div>
     );
   },
-  // what public will see with content
+
   save: function () {
     return null;
   },
