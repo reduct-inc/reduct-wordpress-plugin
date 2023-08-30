@@ -95,7 +95,7 @@ class Plugin
 
         if (isset($attributes["reelId"]) && isset($attributes["transcript"])) {
             ob_start();
-            echo generate_template(reelId: $attributes["reelId"], transcriptHeight: $transcriptHeight, borderRadius: $borderRadius, highlightColor: $highlightColor);
+            echo generate_template($attributes["reelId"], $transcriptHeight, $borderRadius, $highlightColor);
             $output = ob_get_clean();
             return $output;
         }
@@ -189,8 +189,7 @@ class Plugin
             $borderRadius = isset($urlContents["borderRadius"]) ? $urlContents["borderRadius"] : "22px";
             $highlightColor = isset($urlContents["highlightColor"]) ? $urlContents["highlightColor"] : '#FCA59C';
 
-
-            $template = generate_template(reelId: $reelId, transcriptHeight: $height, borderRadius: $borderRadius, highlightColor: $highlightColor);
+            $template = generate_template($reelId, $height, $borderRadius, $highlightColor);
 
             header('Content-Type: text/html; charset=UTF-8');
 
