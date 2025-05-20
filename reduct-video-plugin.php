@@ -2,7 +2,7 @@
 /*
 Plugin name: Reduct Video Plugin
 Description: Plugin to add reduct video shared video to any WP site
-Version: 2.1.0
+Version: 2.1.1
 Author: Reduct Video
 */
 
@@ -65,7 +65,7 @@ class Plugin
     function load_gutenberg_block()
     {
         wp_register_script(
-            'blockType' /* name given to JS file */,
+            'blockType' /* name given to JS file */ ,
             plugin_dir_url(__FILE__) . 'build/index.js',
             array('wp-blocks', 'wp-element', 'wp-components'),
             1.0,
@@ -215,20 +215,44 @@ class Plugin
         // extract manifest from url
         $query = parse_url($rest_route, PHP_URL_QUERY);
         parse_str($query, $params);
-        $manifest = $params['manifest'];
+
+        $type = isset($params['type']) ? $params['type'] : '';
 
         // extract transcript id from url
         $id = explode("/", $rest_route)[4];
 
-        $idx = $url_contents["idx"];
+        $path = "";
 
-        if ($id === "" || $manifest === "" || $idx === "") {
-            $response->set_data('not-found');
-            $response->set_status(404);
-            return $response;
+        if ($type == "hls") {
+            $path = VIDEO_RESOURCE_URL . $id . "/burn?" . "type=" . $type;
+
+            $transcript_data = file_get_contents($path);
+
+            if ($transcript_data == false) {
+                $response->set_data('not-found');
+                $response->set_status(404);
+                return $response;
+            }
+
+            header('Content-Type: application/vnd.apple.mpegurl');
+            header('Content-Disposition: attachment; filename="burn.m3u"');
+
+            // disable cache
+            header('Pragma: no-cache');
+            header('Expires: 0');
+            echo $transcript_data;
+            exit;
+        } else {
+            $manifest = isset($params['manifest']) ? $params['manifest'] : '';
+            $idx = isset($url_contents["idx"]) ? $url_contents["idx"] : '';
+            if ($id === "" || $manifest === "" || $idx === "") {
+                $response->set_data('not-found');
+                $response->set_status(404);
+                return $response;
+            }
+
+            $path = VIDEO_RESOURCE_URL . $id . "/burn?" . "manifest=" . $manifest . "&idx=" . $idx;
         }
-
-        $path = VIDEO_RESOURCE_URL . $id . "/burn?" . "manifest=" . $manifest . "&idx=" . $idx;
 
         $video_data = file_get_contents($path);
 
