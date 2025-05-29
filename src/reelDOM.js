@@ -16,7 +16,7 @@ const generateDomFromTranscript = ({
       className='reduct-plugin-container'
       id={`reduct-plugin-video-${uniqueId}`}
       style={{ borderRadius }}>
-      <video className='reduct-plugin-video' controls poster={posterUrl} />
+      <video className='reduct-plugin-video' controls poster={posterUrl} playsinline webkit-playsinline />
       <div
         className='reduct-plugin-transcript-wrapper'
         style={{ height: transcriptHeight }}>

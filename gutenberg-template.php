@@ -46,7 +46,7 @@ function generate_template($reelId, $transcriptHeight, $borderRadius, $highlight
     ?>
     <div class='reduct-plugin-container' id="reduct-plugin-video-<?php echo $uniqueId ?>"
         style="borderRadius: <?php echo $borderRadius ?>;">
-        <video class='reduct-plugin-video' controls poster="<?php echo $posterUrl ?>"></video>
+        <video class='reduct-plugin-video' controls poster="<?php echo $posterUrl ?>" playsinline webkit-playsinline ></video>
         <div class='reduct-plugin-transcript-wrapper' style="height: <?php echo $transcriptHeight ?>;">
             <button class='reduct-plugin-expand-btn'>↓</button>
             <div class="reduct-plugin-transcript">
